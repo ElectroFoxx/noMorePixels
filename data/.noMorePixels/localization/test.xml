@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<dictionary version="1.00">
+	<msg>
+		<src>Source string</src>
+		<en>String translated to English</en>
+		<ch>String translated to Chinese</ch>
+		<ru>String translated to Russian</ru>
+	</msg>
+</dictionary>

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<asset version="2.20.0.0">
+	<guid>aa5c243c321f5afafd816d36505af42f7c8bea21</guid>
+	<type>file</type>
+	<hash>cb3067fc</hash>
+	<runtimes>
+		<runtime id="aa5c243c321f5afafd816d36505af42f7c8bea21" name="default.controls" link="0"/>
+	</runtimes>
+</asset>

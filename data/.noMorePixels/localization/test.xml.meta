@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<asset version="2.20.0.0">
+	<guid>f04f859ae6e96c05ca2f5cd528a8927a799492e7</guid>
+	<type>file</type>
+	<hash>c075551f</hash>
+	<runtimes>
+		<runtime id="f04f859ae6e96c05ca2f5cd528a8927a799492e7" name="test.xml" link="0"/>
+	</runtimes>
+</asset>
