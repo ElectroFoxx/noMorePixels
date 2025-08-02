@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<asset version="2.20.0.0">
+	<guid>71accc18ee253699c5055c89c339705fb3a118ce</guid>
+	<type>font</type>
+	<hash>b1d3872f</hash>
+	<runtimes>
+		<runtime id="71accc18ee253699c5055c89c339705fb3a118ce" name="Roboto-CondensedItalic.ttf" link="0"/>
+	</runtimes>
+</asset>

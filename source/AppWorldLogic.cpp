@@ -16,41 +16,61 @@ int AppWorldLogic::init()
 
 	if (gui)
 	{
-		UI ui(gui);
+		static UI ui(gui);
 
-		ui.addDictionary("test.xml");
+		Settings::get().addDefaultFont("Roboto-Regular.ttf");
 
-		auto hbox = VBox::create();
-		hbox->setBackground(true)
+		auto hbox = HBox::create();
+		hbox->setBackgroundEnabled(true)
+			->setBackgroundTexture("3dMenuBackground.png")
+			->setBackgroundTextureFiltering(Unigine::Texture::SAMPLER_FILTER_POINT)
 			->setBackgroundColor(50, 50, 50)
 			->setPadding(0.05f, 0.05f, 0.05f, 0.05f)
+			->setPaddingEqual(true)
 			->setSpacing(0.05f);
 
 		if (hbox)
 			ui.setRootWidget(hbox);
 
 		auto vbox1 = VBox::create();
-		vbox1->setBackground(true)
+		vbox1->setBackgroundEnabled(true)
 			->setBackgroundColor(255, 0, 0);
 
 
 		auto vbox2 = VBox::create();
-		vbox2->setBackground(true)
+		vbox2->setBackgroundEnabled(true)
 			->setBackgroundColor(0, 255, 0);
 
-		auto label = Label::create();
+		auto vboxsquare = VBox::create();
+		vbox2->setBackgroundEnabled(true)
+			->setBackgroundColor(0, 0, 255);
+
+		auto label = Label::create(ScaleSettings(ScaleType::Proportional, 0.1f));
 		label->setText("Source string")
-			->setFontMaxHSpacing(0.15f)
-			->setFontHSpacing(1.f)
-			->setFontSize(0.9f)
+			->setDefaultFont(0)
 			->setTextAlign(Align::Center, Align::Top);
+
+		auto edit = EditLine::create();
+		edit->setDefaultFont(0);
+
+		auto check = CheckBox::create();
+		
+		auto scrollbox = ScrollBox::create();
+
+		vbox1->addChild(vboxsquare);
+		vbox1->addChild(edit);
+		vbox1->addChild(check);
+		
 		vbox2->addChild(label);
+		vbox2->addChild(scrollbox);
 
 		hbox->addChild(vbox1);
 		hbox->addChild(vbox2);
 
 		ui.updateLayout();
-		ui.translate();
+		//ui.setDictionary("test.xml");
+		//ui.setLanguage("en");
+		//ui.translate();
 		
 	}
 

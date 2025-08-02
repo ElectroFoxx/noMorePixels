@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<asset version="2.20.0.0">
+	<guid>b2c999f616f8b1b0fc393b3f9c37cd4091cc783c</guid>
+	<type>font</type>
+	<hash>868e79</hash>
+	<runtimes>
+		<runtime id="b2c999f616f8b1b0fc393b3f9c37cd4091cc783c" name="Roboto-BoldItalic.ttf" link="0"/>
+	</runtimes>
+</asset>
