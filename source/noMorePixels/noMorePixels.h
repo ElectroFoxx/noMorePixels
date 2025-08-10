@@ -72,11 +72,7 @@ namespace noMoPi
 		Unigine::WidgetPtr getWidget() { return _widget; }
 		virtual void translate() {}
 		virtual void tick(float deltaTime) {}
-
-		Unigine::Event<const Unigine::WidgetPtr&>& getEventEnter();
-		Unigine::Event<const Unigine::WidgetPtr&>& getEventLeave();
-		Unigine::Event<const Unigine::WidgetPtr&, int>& getEventPressed();
-		Unigine::Event<const Unigine::WidgetPtr&, int>& getEventClicked();
+		virtual void addChild(const std::shared_ptr<WidgetBase>& widget) {}
 	protected:
 		Unigine::WidgetPtr _widget;
 
@@ -91,17 +87,17 @@ namespace noMoPi
 		virtual void resize(int32_t width, int32_t height);
 		virtual void translate();
 		virtual void tick(float deltaTime);
-		void _resizeChildren();
-		int32_t getInnerHeight() const;
-		int32_t getInnerWidth() const;
+		virtual int32_t getInnerHeight() const;
+		virtual int32_t getInnerWidth() const;
 
-		void addChild(const std::shared_ptr<WidgetBase>& widget);
+		virtual void addChild(const std::shared_ptr<WidgetBase>& widget);
 
 		WidgetContainer* setPadding(float top, float bottom, float left, float right);
 		WidgetContainer* setPaddingEqual(bool isPaddingEqual);
-		WidgetContainer* setSpacing(float spacing);
+		WidgetContainer* setSpacing(float spacing, bool ignorePadding = false);
 		WidgetContainer* setBackgroundEnabled(bool hasBackground);
 		WidgetContainer* setBackgroundColor(float r, float g, float b, float a = 1.f);
+		WidgetContainer* setBackgroundColor(const Unigine::Math::vec4& color);
 		WidgetContainer* setBackgroundColor(int32_t r, int32_t g, int32_t b, int32_t a = 255);
 		WidgetContainer* setBackgroundTexture(const Unigine::String& texture);
 		WidgetContainer* setBackgroundTextureFiltering(int32_t filtering);
@@ -119,6 +115,7 @@ namespace noMoPi
 
 		void _calculatePadding();
 		void _calculateSpacing();
+		virtual void _resizeChildren();
 
 		std::vector<std::shared_ptr<WidgetBase>> _childWidgets;
 		std::vector<Unigine::WidgetVBoxPtr> _spacers;
@@ -126,6 +123,7 @@ namespace noMoPi
 		Unigine::Math::ivec4 _paddingInPixels;
 		bool _isPaddingEqual = false;
 		float _spacing = 0.f;
+		bool _ignorePadding = false;
 	};
 
 
@@ -140,6 +138,7 @@ namespace noMoPi
 		void setLanguage(const char* language);
 		void translate();
 		void tick();
+		void addChild(const std::shared_ptr<WidgetBase>& widget);
 	private:
 		Unigine::GuiPtr _gui;
 		std::shared_ptr<WidgetBase> _rootWidget;
@@ -152,8 +151,8 @@ namespace noMoPi
 	public:
 		HBox(const ScaleSettings& scaleSettings);
 
-		static std::shared_ptr<WidgetContainer> create() { return std::make_shared<HBox>(ScaleSettings()); }
-		static std::shared_ptr<WidgetContainer> create(const ScaleSettings& scaleSettings) { return std::make_shared<HBox>(scaleSettings); }
+		static std::shared_ptr<HBox> create() { return std::make_shared<HBox>(ScaleSettings()); }
+		static std::shared_ptr<HBox> create(const ScaleSettings& scaleSettings) { return std::make_shared<HBox>(scaleSettings); }
 	};
 
 
@@ -162,8 +161,8 @@ namespace noMoPi
 	public:
 		VBox(const ScaleSettings& scaleSettings);
 
-		static std::shared_ptr<WidgetContainer> create() { return std::make_shared<VBox>(ScaleSettings()); }
-		static std::shared_ptr<WidgetContainer> create(const ScaleSettings& scaleSettings) { return std::make_shared<VBox>(scaleSettings); }
+		static std::shared_ptr<VBox> create() { return std::make_shared<VBox>(ScaleSettings()); }
+		static std::shared_ptr<VBox> create(const ScaleSettings& scaleSettings) { return std::make_shared<VBox>(scaleSettings); }
 	};
 
 
@@ -224,6 +223,11 @@ namespace noMoPi
 		static std::shared_ptr<ScrollBox> create(const ScaleSettings& scaleSettings) { return std::make_shared<ScrollBox>(scaleSettings); }
 
 		virtual void resize(int32_t width, int32_t height);
+		ScrollBox* setVisibleItemCount(int32_t itemCount);
+	protected:
+		virtual void _resizeChildren();
+	private:
+		int32_t _itemCount = 0;
 	};
 
 
@@ -255,5 +259,21 @@ namespace noMoPi
 		static std::shared_ptr<CheckBox> create(const ScaleSettings& scaleSettings) { return std::make_shared<CheckBox>(scaleSettings); }
 
 		Unigine::TexturePtr _backgroundTexture, _tickTexture;
+	};
+
+	class Interactive
+	{
+	public:
+		void setGui(Unigine::GuiPtr gui);
+		void resize(int32_t width, int32_t height);
+		void attach(const std::shared_ptr<WidgetBase>& widget);
+
+		Unigine::Event<const Unigine::WidgetPtr&>& getEventEnter() { return _interactiveLayer->getEventEnter(); }
+		Unigine::Event<const Unigine::WidgetPtr&>& getEventLeave() { return _interactiveLayer->getEventLeave(); }
+		Unigine::Event<const Unigine::WidgetPtr&, int>& getEventClicked() { return _interactiveLayer->getEventClicked(); }
+	protected:
+		Interactive();
+		
+		Unigine::WidgetButtonPtr _interactiveLayer;
 	};
 }

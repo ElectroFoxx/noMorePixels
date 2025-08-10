@@ -31,26 +31,9 @@ void WidgetBase::resize(int32_t width, int32_t height)
 {
 	_widget->setWidth(width);
 	_widget->setHeight(height);
-}
 
-Unigine::Event<const Unigine::WidgetPtr&>& noMoPi::WidgetBase::getEventEnter()
-{
-	return _widget->getEventEnter();
-}
-
-Unigine::Event<const Unigine::WidgetPtr&>& noMoPi::WidgetBase::getEventLeave()
-{
-	return _widget->getEventLeave();
-}
-
-Unigine::Event<const Unigine::WidgetPtr&, int>& noMoPi::WidgetBase::getEventPressed()
-{
-	return _widget->getEventPressed();
-}
-
-Unigine::Event<const Unigine::WidgetPtr&, int>& noMoPi::WidgetBase::getEventClicked()
-{
-	return _widget->getEventClicked();
+	if (Interactive* interactive = dynamic_cast<Interactive*>(this))
+		interactive->resize(width, height);
 }
 
 void WidgetContainer::resize(int32_t width, int32_t height)
@@ -84,7 +67,6 @@ void noMoPi::WidgetContainer::_resizeChildren()
 	int32_t parentHeight = getInnerHeight();
 
 	bool isHorizontal = _widget->getType() == Unigine::Widget::TYPE::WIDGET_HBOX;
-	Unigine::Log::message("%s\n", isHorizontal ? "TRUE" : "FALSE");
 
 	if (isHorizontal)
 	{
@@ -157,9 +139,10 @@ WidgetContainer* noMoPi::WidgetContainer::setPaddingEqual(bool isPaddingEqual)
 	return this;
 }
 
-WidgetContainer* WidgetContainer::setSpacing(float spacing)
+WidgetContainer* WidgetContainer::setSpacing(float spacing, bool ignorePadding)
 {
 	_spacing = spacing;
+	_ignorePadding = ignorePadding;
 	return this;
 }
 
@@ -191,13 +174,12 @@ void noMoPi::WidgetContainer::_calculatePadding()
 
 void noMoPi::WidgetContainer::_calculateSpacing()
 {
-	const int32_t width = getInnerWidth();
-	const int32_t height = getInnerHeight();
+	const int32_t width = _ignorePadding ? getWidth() : getInnerWidth();
+	const int32_t height = _ignorePadding ? getHeight() : getInnerHeight();
 
-	if (Unigine::WidgetHBoxPtr hbox = Unigine::dynamic_ptr_cast<Unigine::WidgetHBox>(_widget))
+	if (_widget->getType() == Unigine::Widget::TYPE::WIDGET_HBOX)
 	{
 		int32_t scaledSpacing = static_cast<int32_t>(width * _spacing);
-		//hbox->setSpace(scaledSpacing, 0);
 		for (auto& spacer : _spacers)
 		{
 			spacer->setWidth(scaledSpacing);
@@ -205,10 +187,9 @@ void noMoPi::WidgetContainer::_calculateSpacing()
 		}
 			
 	}
-	else if (Unigine::WidgetVBoxPtr vbox = Unigine::dynamic_ptr_cast<Unigine::WidgetVBox>(_widget))
+	else if (_widget->getType() == Unigine::Widget::TYPE::WIDGET_VBOX || _widget->getType() == Unigine::Widget::TYPE::WIDGET_SCROLL_BOX)
 	{
 		int32_t scaledSpacing = static_cast<int32_t>(height * _spacing);
-		//vbox->setSpace(0, scaledSpacing);
 		for (auto& spacer : _spacers)
 		{
 			spacer->setWidth(width);
@@ -231,6 +212,13 @@ void noMoPi::WidgetContainer::addChild(const std::shared_ptr<WidgetBase>& widget
 {
 	Unigine::GuiPtr gui = _widget->getGui();
 	widget->setGui(gui);
+
+	// Interactive vidgets support events like onClicked, onEnter, ect
+	if (Interactive* interactive = dynamic_cast<Interactive*>(widget.get()))
+	{
+		interactive->setGui(gui);
+		interactive->attach(widget);
+	}
 
 	if (_childWidgets.size() >= 1)
 	{
@@ -258,6 +246,14 @@ WidgetContainer* WidgetContainer::setBackgroundColor(float r, float g, float b, 
 	if (Unigine::WidgetVBoxPtr box = Unigine::dynamic_ptr_cast<Unigine::WidgetVBox>(_widget))
 		box->setBackgroundColor(Unigine::Math::vec4(r, b, g, a));
 	
+	return this;
+}
+
+WidgetContainer* noMoPi::WidgetContainer::setBackgroundColor(const Unigine::Math::vec4& color)
+{
+	if (Unigine::WidgetVBoxPtr box = Unigine::dynamic_ptr_cast<Unigine::WidgetVBox>(_widget))
+		box->setBackgroundColor(color);
+
 	return this;
 }
 
@@ -337,6 +333,8 @@ void noMoPi::Label::_countTextLines(const char* text)
 Label* Label::setFontSize(float fontSize)
 {
 	_fontSize = std::clamp(fontSize, 0.f, 1.f);
+
+	_label->setFontSize(static_cast<int32_t>(_maxFontSize * fontSize));
 	
 	return this;
 }
@@ -477,28 +475,28 @@ void noMoPi::Label::_calculateMaxFontParams()
 	if (!_fontWrap)
 	{
 		_label->setFontSize(height);
-		const Unigine::Math::ivec2 textRenderSize = _label->getTextRenderSize(_targetText);
+		const Unigine::Math::ivec2 textRawRenderSize = _label->getTextRenderSize(_targetText);
 		
 		_label->setFontHSpacing(static_cast<int32_t>(height * _fontMaxHSpacing));
 		_label->setFontVSpacing(static_cast<int32_t>(height * _fontMaxVSpacing));
 
-		const Unigine::Math::ivec2 textRenderSizeSpacing = _label->getTextRenderSize(_targetText);
+		const Unigine::Math::ivec2 textRenderSizeWithSpacing = _label->getTextRenderSize(_targetText);
 
-		const float hScaleProportion = static_cast<float>(textRenderSizeSpacing.x) / textRenderSize.x;
+		const float hScaleProportion = static_cast<float>(textRenderSizeWithSpacing.x) / textRawRenderSize.x;
 		const float vScaleProportion = 1.f + _fontMaxVSpacing;
 
 		_maxFontSize = height / (_newLineCount + 1);
-		if (textRenderSize.x > width)
+		if (textRenderSizeWithSpacing.x > width)
 		{
 			float maxBaseWidth = static_cast<float>(width) / hScaleProportion;
 
-			_maxFontSize = static_cast<int32_t>(height * (maxBaseWidth / textRenderSize.x));
+			_maxFontSize = static_cast<int32_t>(height * (maxBaseWidth / textRawRenderSize.x));
 		}
-		if (textRenderSize.y > height)
+		if (textRenderSizeWithSpacing.y > height)
 		{
 			float maxBaseHeight = static_cast<float>(height) / vScaleProportion;
 
-			_maxFontSize = std::min(static_cast<int32_t>(height * (maxBaseHeight / textRenderSize.y)), _maxFontSize);
+			_maxFontSize = std::min(static_cast<int32_t>(height * (maxBaseHeight / textRawRenderSize.y)), _maxFontSize);
 		}
 	}
 	else
@@ -552,6 +550,11 @@ void noMoPi::UI::tick()
 	_rootWidget->tick(Unigine::Engine::get()->getIFps());
 }
 
+void UI::addChild(const std::shared_ptr<WidgetBase>& widget)
+{
+	_rootWidget->addChild(widget);
+}
+
 void WidgetContainer::translate()
 {
 	for (auto& child : _childWidgets)
@@ -585,7 +588,7 @@ ScrollBox::ScrollBox(const ScaleSettings& scaleSettings) : WidgetContainer(scale
 	Unigine::WidgetScrollPtr scr = scroll->getVScroll();
 	scr->setSliderButton(false);
 	scroll->setBorder(0);
-	static Unigine::EventConnection ec;
+	/*static Unigine::EventConnection ec;
 	scroll->getEventChanged().connect(ec, [](const Unigine::WidgetPtr& widget) {
 		Unigine::WidgetScrollBoxPtr scr = Unigine::dynamic_ptr_cast<Unigine::WidgetScrollBox>(widget);
 		Unigine::WidgetScrollPtr scroll = scr->getVScroll();
@@ -594,18 +597,37 @@ ScrollBox::ScrollBox(const ScaleSettings& scaleSettings) : WidgetContainer(scale
 	for (int i = 0; i < 100; i++)
 	{
 		scroll->addChild(Unigine::WidgetButton::create("test"));
-	}
+	}*/
 	
 	_widget = scroll;
 }
 
 void ScrollBox::resize(int32_t width, int32_t height)
 {
-	WidgetContainer::resize(width, height);
+	WidgetContainer::resize(width - 16, height);
 
 	Unigine::WidgetScrollBoxPtr scr = Unigine::dynamic_ptr_cast<Unigine::WidgetScrollBox>(_widget);
 
-	_widget->setWidth(width - 16);
+	//_widget->setWidth(width - 16);
+}
+
+ScrollBox* noMoPi::ScrollBox::setVisibleItemCount(int32_t itemCount)
+{
+	_itemCount = itemCount;
+	
+	return this;
+}
+
+void ScrollBox::_resizeChildren()
+{
+	int32_t height = getHeight();
+	int32_t scaledSpacing = static_cast<int32_t>(height * _spacing);
+	height -= (_childWidgets.size() - 2) * scaledSpacing;
+	
+	for (auto& child : _childWidgets)
+	{
+		child->resize(getWidth(), height / _itemCount);
+	}
 }
 
 EditLine::EditLine(const ScaleSettings& scaleSettings) : WidgetBase(scaleSettings)
@@ -669,3 +691,24 @@ noMoPi::CheckBox::CheckBox(const ScaleSettings& scaleSettings) : WidgetBase(scal
 	_widget = sprite;
 }
 
+void noMoPi::Interactive::setGui(Unigine::GuiPtr gui)
+{
+	_interactiveLayer->setGui(gui);
+}
+
+Interactive::Interactive()
+{
+	_interactiveLayer = Unigine::WidgetButton::create("");
+	_interactiveLayer->setBackground(false);
+}
+
+void Interactive::resize(int32_t width, int32_t height)
+{
+	_interactiveLayer->setWidth(width);
+	_interactiveLayer->setHeight(height);
+}
+
+void noMoPi::Interactive::attach(const std::shared_ptr<WidgetBase>& widget)
+{
+	widget->getWidget()->addChild(_interactiveLayer, Unigine::Gui::ALIGN_OVERLAP | Unigine::Gui::ALIGN_FIXED);
+}

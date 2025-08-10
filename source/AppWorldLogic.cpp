@@ -56,6 +56,23 @@ int AppWorldLogic::init()
 		auto check = CheckBox::create();
 		
 		auto scrollbox = ScrollBox::create();
+		scrollbox->setVisibleItemCount(2);
+
+		auto vbox1scroll = VBox::create();
+		vbox1scroll->setBackgroundEnabled(true)
+			->setBackgroundColor(255, 0, 0);
+
+		auto vbox2scroll = VBox::create();
+		vbox2scroll->setBackgroundEnabled(true)
+			->setBackgroundColor(0, 255, 0);
+
+		auto vbox3scroll = VBox::create();
+		vbox3scroll->setBackgroundEnabled(true)
+			->setBackgroundColor(255, 0, 0);
+
+		scrollbox->addChild(vbox1scroll);
+		scrollbox->addChild(vbox2scroll);
+		scrollbox->addChild(vbox3scroll);
 
 		vbox1->addChild(vboxsquare);
 		vbox1->addChild(edit);
