@@ -36,6 +36,14 @@ void WidgetBase::resize(int32_t width, int32_t height)
 		interactive->resize(width, height);
 }
 
+void noMoPi::WidgetBase::setIsEnabled(bool isEnabled)
+{
+	_widget->setEnabled(isEnabled);
+
+	if (Interactive* interactive = dynamic_cast<Interactive*>(this))
+		interactive->_setIsEnabled(isEnabled);
+}
+
 void WidgetContainer::resize(int32_t width, int32_t height)
 {
 	WidgetBase::resize(width, height);
@@ -179,21 +187,21 @@ void noMoPi::WidgetContainer::_calculateSpacing()
 
 	if (_widget->getType() == Unigine::Widget::TYPE::WIDGET_HBOX)
 	{
-		int32_t scaledSpacing = static_cast<int32_t>(width * _spacing);
+		_scaledSpacing = static_cast<int32_t>(width * _spacing);
 		for (auto& spacer : _spacers)
 		{
-			spacer->setWidth(scaledSpacing);
+			spacer->setWidth(_scaledSpacing);
 			spacer->setHeight(height);
 		}
 			
 	}
 	else if (_widget->getType() == Unigine::Widget::TYPE::WIDGET_VBOX || _widget->getType() == Unigine::Widget::TYPE::WIDGET_SCROLL_BOX)
 	{
-		int32_t scaledSpacing = static_cast<int32_t>(height * _spacing);
+		_scaledSpacing = static_cast<int32_t>(height * _spacing);
 		for (auto& spacer : _spacers)
 		{
 			spacer->setWidth(width);
-			spacer->setHeight(scaledSpacing);
+			spacer->setHeight(_scaledSpacing);
 		}
 	}
 }
@@ -201,6 +209,7 @@ void noMoPi::WidgetContainer::_calculateSpacing()
 HBox::HBox(const ScaleSettings& scaleSettings) : WidgetContainer(scaleSettings)
 {
 	_widget = Unigine::WidgetHBox::create();
+	_containterWidget = _widget;
 
 	if (Unigine::WidgetHBoxPtr hbox = Unigine::static_ptr_cast<Unigine::WidgetHBox>(_widget))
 	{
@@ -224,13 +233,18 @@ void noMoPi::WidgetContainer::addChild(const std::shared_ptr<WidgetBase>& widget
 	{
 		Unigine::WidgetVBoxPtr spacer = Unigine::WidgetVBox::create();
 		_spacers.push_back(spacer);
-		_widget->addChild(spacer);
+		_containterWidget->addChild(spacer);
 	}
 
 	_childWidgets.push_back(widget);
 
-	if (_widget && widget->getWidget())
-		_widget->addChild(widget->getWidget());
+	if (_containterWidget && widget->getWidget())
+		_containterWidget->addChild(widget->getWidget());
+}
+
+const std::shared_ptr<WidgetBase>& noMoPi::WidgetContainer::getChild(int32_t index) const
+{
+	return _childWidgets.at(index);
 }
 
 WidgetContainer* WidgetContainer::setBackgroundEnabled(bool hasBackground)
@@ -286,6 +300,7 @@ WidgetContainer* noMoPi::WidgetContainer::setBackgroundTextureFiltering(int32_t 
 VBox::VBox(const ScaleSettings& scaleSettings) : WidgetContainer(scaleSettings)
 {
 	_widget = Unigine::WidgetVBox::create();
+	_containterWidget = _widget;
 
 	if (Unigine::WidgetVBoxPtr vbox = Unigine::static_ptr_cast<Unigine::WidgetVBox>(_widget))
 	{
@@ -579,57 +594,6 @@ void Label::translate()
 	_updateFont(_widget->getWidth());
 }
 
-ScrollBox::ScrollBox(const ScaleSettings& scaleSettings) : WidgetContainer(scaleSettings)
-{
-	Unigine::WidgetScrollBoxPtr scroll = Unigine::WidgetScrollBox::create();
-
-	scroll->setVScrollEnabled(true);
-	scroll->setHScrollEnabled(false);
-	Unigine::WidgetScrollPtr scr = scroll->getVScroll();
-	scr->setSliderButton(false);
-	scroll->setBorder(0);
-	/*static Unigine::EventConnection ec;
-	scroll->getEventChanged().connect(ec, [](const Unigine::WidgetPtr& widget) {
-		Unigine::WidgetScrollBoxPtr scr = Unigine::dynamic_ptr_cast<Unigine::WidgetScrollBox>(widget);
-		Unigine::WidgetScrollPtr scroll = scr->getVScroll();
-		Unigine::Log::message("%d %d\n", scr->getVScrollValue() / scr->getScrollScale(), (scr->getVScrollObjectSize() - scr->getVScrollFrameSize()) / scr->getScrollScale());
-		});
-	for (int i = 0; i < 100; i++)
-	{
-		scroll->addChild(Unigine::WidgetButton::create("test"));
-	}*/
-	
-	_widget = scroll;
-}
-
-void ScrollBox::resize(int32_t width, int32_t height)
-{
-	WidgetContainer::resize(width - 16, height);
-
-	Unigine::WidgetScrollBoxPtr scr = Unigine::dynamic_ptr_cast<Unigine::WidgetScrollBox>(_widget);
-
-	//_widget->setWidth(width - 16);
-}
-
-ScrollBox* noMoPi::ScrollBox::setVisibleItemCount(int32_t itemCount)
-{
-	_itemCount = itemCount;
-	
-	return this;
-}
-
-void ScrollBox::_resizeChildren()
-{
-	int32_t height = getHeight();
-	int32_t scaledSpacing = static_cast<int32_t>(height * _spacing);
-	height -= (_childWidgets.size() - 2) * scaledSpacing;
-	
-	for (auto& child : _childWidgets)
-	{
-		child->resize(getWidth(), height / _itemCount);
-	}
-}
-
 EditLine::EditLine(const ScaleSettings& scaleSettings) : WidgetBase(scaleSettings)
 {
 	Unigine::WidgetEditLinePtr _editLine = Unigine::WidgetEditLine::create("test");
@@ -711,4 +675,292 @@ void Interactive::resize(int32_t width, int32_t height)
 void noMoPi::Interactive::attach(const std::shared_ptr<WidgetBase>& widget)
 {
 	widget->getWidget()->addChild(_interactiveLayer, Unigine::Gui::ALIGN_OVERLAP | Unigine::Gui::ALIGN_FIXED);
+}
+
+noMoPi::Scroll::Scroll(const ScaleSettings& scaleSettings) : WidgetBase(scaleSettings)
+{
+	_widget = Unigine::WidgetVBox::create();
+	Unigine::dynamic_ptr_cast<Unigine::WidgetVBox>(_widget)->setBackgroundColor(Unigine::Math::vec4_blue);
+	Unigine::dynamic_ptr_cast<Unigine::WidgetVBox>(_widget)->setBackground(1);
+
+	_topSprite = Unigine::WidgetSprite::create();
+	_topSprite->getEventClicked().connect(ec, this, &Scroll::_topOrLeftClicked);
+
+	static Unigine::EventConnections econn;
+
+	_bottomSprite = Unigine::WidgetSprite::create();
+	_bottomSprite->getEventClicked().connect(ec, this, &Scroll::_leftOrBottomClicked);
+
+	_topTexture = Unigine::Texture::create();
+	_topTexture->load(Settings::get().getTexturesPath("topArrow.png"));
+
+	_sliderBox = Unigine::WidgetHBox::create();
+	_sliderBox->setBackground(true);
+	_sliderBox->setBackgroundTexture(Settings::get().getTexturesPath("sliderBackground.png"));
+
+	_coreSlider = Unigine::WidgetSlider::create();
+	_applySliderProperties(_coreSlider);
+	_sliderBox->addChild(_coreSlider);
+
+	_bottomTexture = Unigine::Texture::create();
+	_bottomTexture->load(Settings::get().getTexturesPath("bottomArrow.png"));
+
+	_sliderSprite = Unigine::WidgetSprite::create();
+
+	_sliderTexture = Unigine::Texture::create();
+	_sliderTexture->load(Settings::get().getTexturesPath("bottomArrow.png"));
+
+	_topSprite->setRender(_topTexture);
+
+	_bottomSprite->setRender(_bottomTexture);
+	_sliderSprite->setRender(_sliderTexture);
+
+	_widget->addChild(_topSprite);
+	
+	_widget->addChild(_sliderSprite, Unigine::Gui::ALIGN_OVERLAP | Unigine::Gui::ALIGN_FIXED);
+
+	_widget->addChild(_sliderBox);
+	_widget->addChild(_bottomSprite);
+}
+
+void Scroll::resize(int32_t width, int32_t height)
+{
+	WidgetBase::resize(width, height);
+
+	int32_t availableHeight = height;
+
+	int32_t textureWidth = _topTexture->getWidth(), textureHeight = _topTexture->getHeight();
+
+	float aspectRatio = static_cast<float>(textureWidth) / textureHeight;
+
+	_topHeight = static_cast<int32_t>(_widget->getWidth() * aspectRatio);
+	availableHeight -= _topHeight;
+
+	_topSprite->setWidth(_widget->getWidth());
+	_topSprite->setHeight(_topHeight);
+
+	textureWidth = _bottomTexture->getWidth(), textureHeight = _bottomTexture->getHeight();
+
+	aspectRatio = static_cast<float>(textureWidth) / textureHeight;
+
+	_bottomHeight = static_cast<int32_t>(_widget->getWidth() * aspectRatio);
+	availableHeight -= _bottomHeight;
+
+	_bottomSprite->setWidth(_widget->getWidth());
+	_bottomSprite->setHeight(_bottomHeight);
+
+	_sliderSprite->setWidth(_widget->getWidth());
+	_sliderSprite->setHeight(_bottomHeight);
+
+	for (int32_t i = _sliderBox->getNumChildren() - 1; i >= 1; i--)
+		_sliderBox->removeChild(_sliderBox->getChild(i));
+
+	_coreSlider->setHeight(availableHeight);
+	_coreSlider->setButtonHeight(_bottomHeight);
+
+	for (int32_t i = 1; i < ceil(static_cast<float>(width) / 15); i++)
+	{
+		auto slider = Unigine::WidgetSlider::create();
+		_applySliderProperties(slider);
+		slider->setHeight(availableHeight);
+		slider->setPositionX(i * 16);
+		slider->setButtonHeight(_bottomHeight);
+		_sliderBox->addChild(slider, Unigine::Gui::ALIGN_OVERLAP);
+	}
+
+	_setSliderRange();
+
+	_sliderBox->setWidth(_widget->getWidth());
+	_sliderBox->setHeight(availableHeight);
+
+	_sliderSize = _bottomHeight;
+	_sliderSpace = availableHeight - _sliderSize;
+
+	_sliderChanged(_coreSlider);
+}
+
+void noMoPi::Scroll::setValue(int32_t value)
+{
+	_coreSlider->setValue(value);
+}
+
+Scroll* noMoPi::Scroll::setRange(int32_t minValue, int32_t maxValue)
+{
+	_minValue = minValue;
+	_maxValue = maxValue;
+
+	_setSliderRange();
+	
+	return this;
+}
+
+Scroll* noMoPi::Scroll::setIsReversed(bool isReversed)
+{
+	_isReversed = isReversed;
+	_setSliderRange();
+	
+	return this;
+}
+
+void noMoPi::Scroll::_sliderChanged(const Unigine::WidgetPtr& widget)
+{
+	auto widgetSlider = Unigine::dynamic_ptr_cast<Unigine::WidgetSlider>(widget);
+
+	Unigine::Log::message("Slider changed %d\n", widgetSlider->getValue());
+	
+	for (int32_t i = 0; i < _sliderBox->getNumChildren(); i++)
+	{
+		auto child = _sliderBox->getChild(i);
+		auto slider = Unigine::dynamic_ptr_cast<Unigine::WidgetSlider>(child);
+		if (slider)
+			slider->setValue(widgetSlider->getValue());
+	}
+
+	const int32_t sliderRange = _maxValue - _minValue;
+	Unigine::Log::message("Slider range, slider value, slider space: %d %d %d\n", sliderRange, widgetSlider->getValue(), _sliderSpace);
+	int32_t position = _topHeight + static_cast<float>(_sliderSpace) * (_isReversed ? widgetSlider->getValue() : _maxValue - widgetSlider->getValue()) / sliderRange;
+
+	_sliderSprite->setPositionY(position);
+}
+
+void noMoPi::Scroll::_topOrLeftClicked(const Unigine::WidgetPtr& widget, int32_t mouse)
+{
+	for (int32_t i = 0; i < _sliderBox->getNumChildren(); i++)
+	{
+		auto child = _sliderBox->getChild(i);
+		auto slider = Unigine::dynamic_ptr_cast<Unigine::WidgetSlider>(child);
+		if (slider)
+		{
+			slider->setValue(slider->getValue() + (slider->getMaxValue() > slider->getMinValue() ? 1 : -1));
+			break;
+		}
+	}
+}
+
+void noMoPi::Scroll::_leftOrBottomClicked(const Unigine::WidgetPtr& widget, int32_t mouse)
+{
+	for (int32_t i = 0; i < _sliderBox->getNumChildren(); i++)
+	{
+		auto child = _sliderBox->getChild(i);
+		auto slider = Unigine::dynamic_ptr_cast<Unigine::WidgetSlider>(child);
+		if (slider)
+		{
+			slider->setValue(slider->getValue() + (slider->getMaxValue() > slider->getMinValue() ? -1 : 1));
+			break;
+		}
+	}
+}
+
+void noMoPi::Scroll::_applySliderProperties(const Unigine::WidgetSliderPtr& slider)
+{
+	slider->setOrientation(0);
+	slider->setButtonHeight(100);
+	slider->getEventChanged().connect(ec, this, &Scroll::_sliderChanged);
+	// make the slider transparent
+	//slider->setBackgroundColor(Unigine::Math::vec4(0, 0, 0, 0));
+	//slider->setButtonColor(Unigine::Math::vec4(0, 0, 0, 0));
+}
+
+void noMoPi::Scroll::_setSliderRange()
+{
+	for (int32_t i = 0; i < _sliderBox->getNumChildren(); i++)
+	{
+		auto child = _sliderBox->getChild(i);
+		auto slider = Unigine::dynamic_ptr_cast<Unigine::WidgetSlider>(child);
+		Unigine::Log::message("chuj\n");
+		if (slider)
+		{
+			slider->setMinValue(_isReversed ? _maxValue : _minValue);
+			slider->setMaxValue(_isReversed ? _minValue : _maxValue);
+		}
+	}
+}
+
+noMoPi::ScrollBox::ScrollBox(const ScaleSettings& scaleSettings) : WidgetContainer(scaleSettings)
+{
+	Unigine::WidgetHBoxPtr hbox = Unigine::WidgetHBox::create();
+	hbox->setBackground(true);
+	hbox->setBackgroundColor(Unigine::Math::vec4(0.5f, 1.f, 1.f, 1.f));
+	
+	_widget = hbox;
+
+	Unigine::WidgetScrollBoxPtr scrollbox = Unigine::WidgetScrollBox::create();
+	scrollbox->setBorder(0);
+	scrollbox->setHScrollHidden(Unigine::WidgetScrollBox::ALWAYS_HIDE_NO_BOUNDS);
+	scrollbox->setVScrollHidden(Unigine::WidgetScrollBox::ALWAYS_HIDE_NO_BOUNDS);
+	scrollbox->setBackground(true);
+	scrollbox->setBackgroundColor(Unigine::Math::vec4(0.5f, 0.5f, 1.f, 1.f));
+
+	_containterWidget = scrollbox;
+
+	hbox->addChild(scrollbox);
+
+	_verticalScroll = Scroll::create();
+	_verticalScroll->setIsReversed(true);
+	hbox->addChild(*_verticalScroll);
+
+	_containterWidget->getEventChanged().connect(ec, this, &ScrollBox::_onVerticalScrollBoxChanged);
+	_verticalScroll->getEventChanged().connect(ec, this, &ScrollBox::_onVerticalScrollChanged);
+}
+
+void ScrollBox::resize(int32_t width, int32_t height)
+{
+	WidgetBase::resize(width, height);
+	
+	_containterWidget->setWidth(width - 50);
+	_containterWidget->setHeight(height);
+
+	_verticalScroll->resize(50, height);
+
+	_resizeChildren();
+}
+
+void ScrollBox::addChild(const std::shared_ptr<WidgetBase>& widget)
+{
+	WidgetContainer::addChild(widget);
+
+	_resizeChildren();
+}
+
+ScrollBox* ScrollBox::setVisibleItemCount(int32_t itemCount)
+{
+	_itemCount = itemCount;
+
+	return this;
+}
+
+void ScrollBox::_resizeChildren()
+{
+	Unigine::Log::message("height: %d\n", getHeight());
+	
+	int32_t height = getInnerHeight();
+	int32_t scaledSpacing = static_cast<int32_t>(height * _spacing);
+	height -= (_itemCount - 1) * scaledSpacing;
+	_scaledItemHeight = height / _itemCount;
+
+	for (auto& child : _childWidgets)
+		child->resize(_containterWidget->getWidth(), _scaledItemHeight);
+
+	for (auto& child : _spacers)
+		child->setHeight(scaledSpacing);
+}
+
+void noMoPi::ScrollBox::_onVerticalScrollBoxChanged(const Unigine::WidgetPtr& widget)
+{
+	Unigine::WidgetScrollBoxPtr scrollBox = Unigine::dynamic_ptr_cast<Unigine::WidgetScrollBox>(_containterWidget);
+
+	//scrollBox->getVScrollObjectSize() == scrollBox->getVScrollValue() + scrollBox->getVScrollFrameSize();
+
+	int32_t scrollPercent = scrollBox->getVScrollValue() * 100 / (scrollBox->getVScrollObjectSize() - scrollBox->getVScrollFrameSize());
+
+	_verticalScroll->setValue(scrollPercent);
+}
+
+void noMoPi::ScrollBox::_onVerticalScrollChanged(const Unigine::WidgetPtr& widget)
+{
+	Unigine::WidgetScrollBoxPtr scrollBox = Unigine::dynamic_ptr_cast<Unigine::WidgetScrollBox>(_containterWidget);
+
+	int32_t scrollValue = (scrollBox->getVScrollObjectSize() - scrollBox->getVScrollFrameSize()) * _verticalScroll->getValue() / 100;
+
+	scrollBox->setVScrollValue(scrollValue);
 }

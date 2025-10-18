@@ -32,6 +32,10 @@ int AppWorldLogic::init()
 		if (hbox)
 			ui.setRootWidget(hbox);
 
+		auto scroll = Scroll::create();
+		scroll->setScaleSettings(ScaleSettings(ScaleType::Proportional, 0.1f));
+
+
 		auto vbox1 = VBox::create();
 		vbox1->setBackgroundEnabled(true)
 			->setBackgroundColor(255, 0, 0);
@@ -56,7 +60,8 @@ int AppWorldLogic::init()
 		auto check = CheckBox::create();
 		
 		auto scrollbox = ScrollBox::create();
-		scrollbox->setVisibleItemCount(2);
+		scrollbox->setVisibleItemCount(2)
+			->setSpacing(0.05f);
 
 		auto vbox1scroll = VBox::create();
 		vbox1scroll->setBackgroundEnabled(true)
@@ -81,6 +86,7 @@ int AppWorldLogic::init()
 		vbox2->addChild(label);
 		vbox2->addChild(scrollbox);
 
+		hbox->addChild(scroll);
 		hbox->addChild(vbox1);
 		hbox->addChild(vbox2);
 

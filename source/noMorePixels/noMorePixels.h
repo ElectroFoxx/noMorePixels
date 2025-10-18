@@ -66,13 +66,15 @@ namespace noMoPi
 	public:
 		WidgetBase(const ScaleSettings& scaleSettings) : _scaleSettings(scaleSettings) {}
 		void setGui(const Unigine::GuiPtr& gui) { _widget->setGui(gui); }
+		void setScaleSettings(const ScaleSettings& scaleSettings) { _scaleSettings = scaleSettings; }
 		virtual void resize(int32_t width, int32_t height);
-		operator const Unigine::WidgetPtr& () const { return _widget; }
+		virtual operator const Unigine::WidgetPtr& () const { return _widget; }
 		const ScaleSettings& getScaleSettings() const { return _scaleSettings; }
 		Unigine::WidgetPtr getWidget() { return _widget; }
 		virtual void translate() {}
 		virtual void tick(float deltaTime) {}
 		virtual void addChild(const std::shared_ptr<WidgetBase>& widget) {}
+		void setIsEnabled(bool isEnabled);
 	protected:
 		Unigine::WidgetPtr _widget;
 
@@ -91,6 +93,8 @@ namespace noMoPi
 		virtual int32_t getInnerWidth() const;
 
 		virtual void addChild(const std::shared_ptr<WidgetBase>& widget);
+		const std::shared_ptr<WidgetBase>& getChild(int32_t index) const;
+		const int32_t getNumChildren() const { return static_cast<int32_t>(_childWidgets.size()); }
 
 		WidgetContainer* setPadding(float top, float bottom, float left, float right);
 		WidgetContainer* setPaddingEqual(bool isPaddingEqual);
@@ -104,6 +108,8 @@ namespace noMoPi
 
 		int32_t getWidth() const { return _widget->getWidth(); }
 		int32_t getHeight() const { return _widget->getHeight(); }
+		int32_t getContainerWidth() const { return _containterWidget ? _containterWidget->getWidth() : _widget->getWidth(); }
+		int32_t getContainerHeight() const { return _containterWidget ? _containterWidget->getHeight() : _widget->getHeight(); }
 	protected:
 		enum class Padding : uint8_t
 		{
@@ -114,7 +120,7 @@ namespace noMoPi
 		};
 
 		void _calculatePadding();
-		void _calculateSpacing();
+		virtual void _calculateSpacing();
 		virtual void _resizeChildren();
 
 		std::vector<std::shared_ptr<WidgetBase>> _childWidgets;
@@ -124,6 +130,8 @@ namespace noMoPi
 		bool _isPaddingEqual = false;
 		float _spacing = 0.f;
 		bool _ignorePadding = false;
+		int32_t _scaledSpacing = 0;
+		Unigine::WidgetPtr _containterWidget;
 	};
 
 
@@ -213,6 +221,35 @@ namespace noMoPi
 		float _fontVSpacing = 0.f;
 	};
 
+	class Scroll : public WidgetBase
+	{
+	public:
+		Scroll(const ScaleSettings& scaleSettings);
+
+		static std::shared_ptr<Scroll> create() { return std::make_shared<Scroll>(ScaleSettings()); }
+		static std::shared_ptr<Scroll> create(const ScaleSettings& scaleSettings) { return std::make_shared<Scroll>(scaleSettings); }
+		virtual void resize(int32_t width, int32_t height);
+		int32_t getValue() const { return _coreSlider->getValue(); }
+		void setValue(int32_t value);
+		Scroll* setRange(int32_t minValue, int32_t maxValue);
+		Scroll* setIsReversed(bool isReversed);
+		Unigine::Event<const Unigine::WidgetPtr&>& getEventChanged() { return _coreSlider->getEventChanged(); }
+	private:
+		void _sliderChanged(const Unigine::WidgetPtr& widget);
+		void _topOrLeftClicked(const Unigine::WidgetPtr& widget, int32_t mouse);
+		void _leftOrBottomClicked(const Unigine::WidgetPtr& widget, int32_t mouse);
+		void _applySliderProperties(const Unigine::WidgetSliderPtr& slider);
+		void _setSliderRange();
+		Unigine::EventConnections ec;
+		Unigine::WidgetHBoxPtr _sliderBox;
+		Unigine::WidgetSliderPtr _coreSlider;
+		Unigine::WidgetSpritePtr _bottomSprite, _topSprite, _sliderSprite;
+		Unigine::TexturePtr _bottomTexture, _topTexture, _sliderTexture;
+		int32_t _sliderSpace, _sliderSize;
+		int32_t _topHeight, _bottomHeight;
+		int32_t _minValue = 0, _maxValue = 100;
+		bool _isReversed = false, _isVertical = true;
+	};
 
 	class ScrollBox : public WidgetContainer
 	{
@@ -223,11 +260,21 @@ namespace noMoPi
 		static std::shared_ptr<ScrollBox> create(const ScaleSettings& scaleSettings) { return std::make_shared<ScrollBox>(scaleSettings); }
 
 		virtual void resize(int32_t width, int32_t height);
+		virtual void addChild(const std::shared_ptr<WidgetBase>& widget);
 		ScrollBox* setVisibleItemCount(int32_t itemCount);
 	protected:
 		virtual void _resizeChildren();
 	private:
+		std::shared_ptr<Scroll> _verticalScroll;
+		std::shared_ptr<Scroll> _horizontalScroll;
+
+		Unigine::EventConnections ec;
+
+		void _onVerticalScrollBoxChanged(const Unigine::WidgetPtr& widget);
+		void _onVerticalScrollChanged(const Unigine::WidgetPtr& widget);
+
 		int32_t _itemCount = 0;
+		int32_t _scaledItemHeight = 0;
 	};
 
 
@@ -271,9 +318,11 @@ namespace noMoPi
 		Unigine::Event<const Unigine::WidgetPtr&>& getEventEnter() { return _interactiveLayer->getEventEnter(); }
 		Unigine::Event<const Unigine::WidgetPtr&>& getEventLeave() { return _interactiveLayer->getEventLeave(); }
 		Unigine::Event<const Unigine::WidgetPtr&, int>& getEventClicked() { return _interactiveLayer->getEventClicked(); }
+		void _setIsEnabled(bool isEnabled) { _interactiveLayer->setEnabled(isEnabled); }
 	protected:
 		Interactive();
 		
 		Unigine::WidgetButtonPtr _interactiveLayer;
+		
 	};
 }
