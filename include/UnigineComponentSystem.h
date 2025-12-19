@@ -565,9 +565,9 @@ public:
 	// method registators
 #define METHOD_REGISTRATOR(METHOD, METHOD_LOWCASE)																						\
 	UNIGINE_API void addComponentMethod##METHOD(ComponentBase *component,																\
-		CallbackBase *func, const char *name = nullptr, const char *func_name = nullptr, int order = 0, bool invoke_disabled = false);	\
+		CallbackBase *func, const char *name, const char *func_name = nullptr, int order = 0, bool invoke_disabled = false);	\
 	UNIGINE_API void removeComponentMethod##METHOD(ComponentBase *component,															\
-		CallbackBase *func, const char *name = nullptr, const char *func_name = nullptr, int order = 0, bool invoke_disabled = false);
+		CallbackBase *func, const char *name, const char *func_name = nullptr, int order = 0, bool invoke_disabled = false);
 	METHOD_REGISTRATOR(Init, init);
 	METHOD_REGISTRATOR(UpdateAsyncThread, updateAsyncThread);
 	METHOD_REGISTRATOR(UpdateSyncThread, updateSyncThread);

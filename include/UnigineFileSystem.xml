@@ -1283,13 +1283,13 @@
 		</member>
 		<member name="M:Unigine.FileSystemMount.getGuidsDBIgnoreFilters(Unigine.Vector{String,int,Unigine.VectorAllocator}) const">
 			<summary>
-			Returns the list of GUIDs database (guids.db) ignore filters (blacklist) used to exclude certain files or directories from being stored in the GUIDs database. The filters are defined as wildcard masks (e.g., "*.tmp", "cache_*/"), and help prevent unnecessary or temporary files from being tracked or assigned GUIDs.
+			Returns the list of GUIDs database (guids.db) ignore filters (blacklist) used to exclude certain files or directories from being stored in the GUIDs database.  The filters are defined as wildcard masks (e.g., "*.tmp", "cache_*/"), and help prevent unnecessary or temporary files from being tracked or assigned GUIDs.
 			</summary> 
 			<param name="filters"> Output list of wildcards currently used to exclude files or directories from the GUIDs database. </param> 
 		</member>
 		<member name="M:Unigine.FileSystemMount.getGuidsDBIgnoreFilters const">
 			<summary>
-			Returns the list of GUIDs database (guids.db) ignore filters (blacklist) used to exclude certain files or directories from being stored in the GUIDs database. The filters are defined as wildcard masks (e.g., "*.tmp", "cache_*/"), and help prevent unnecessary or temporary files from being tracked or assigned GUIDs.
+			Returns the list of GUIDs database (guids.db) ignore filters (blacklist) used to exclude certain files or directories from being stored in the GUIDs database.  The filters are defined as wildcard masks (e.g., "*.tmp", "cache_*/"), and help prevent unnecessary or temporary files from being tracked or assigned GUIDs.
 			</summary>  
 		</member>
 		<member name="F:Unigine.FileSystemMount.ACCESS_READONLY">

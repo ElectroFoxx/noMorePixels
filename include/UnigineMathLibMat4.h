@@ -2360,6 +2360,7 @@ UNIGINE_INLINE mat4 reverseDepthProjection(const mat4 &projection)
 	return ret;
 }
 
+/// <summary>Scales Z/depth axis of the projection matrix from [-1; 1] into [0; 1]</summary>
 UNIGINE_INLINE mat4 hardwareProjection(const mat4 &projection)
 {
 	mat4 ret = projection;
@@ -2370,6 +2371,7 @@ UNIGINE_INLINE mat4 hardwareProjection(const mat4 &projection)
 	return ret;
 }
 
+/// <summary>Scales Z/depth axis of the projection matrix from [0; 1] back to [-1; 1]</summary>
 UNIGINE_INLINE mat4 reverseDepthHardwareProjection(const mat4 &projection)
 {
 	mat4 ret = projection;
@@ -2410,6 +2412,8 @@ UNIGINE_INLINE float decomposePerspectiveFov(const mat4 &projection)
 UNIGINE_INLINE bool isOrthoProjection(const mat4 &projection) { return projection.m32 == 0.0f; }
 /// <summary>Returns a value indicating if the specified projection matrix represents a perspective projection.</summary>
 UNIGINE_INLINE bool isPerspectiveProjection(const mat4 &projection) { return projection.m32 != 0.0f; }
+/// <summary>Returns a value indicating if the specified projection matrix represents an off-center asymmetric frustum projection.</summary>
+UNIGINE_INLINE bool isAsymmetricFrustumProjection(const mat4 &projection) { return projection.m02 != 0.0f || projection.m12 != 0.0f; }
 
 /// <summary>Decomposes a given projection matrix (perspective or orthographic), extracting both near and far clipping planes.</summary>
 /// <param name="projection">Source projection matrix.</param>

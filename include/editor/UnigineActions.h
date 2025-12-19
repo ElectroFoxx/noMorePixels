@@ -42,10 +42,32 @@ namespace UnigineEditor
 /// <summary>This class is used to represent any user's selection action.
 /// Warning: this class is NOT THREAD-SAFE, you should create its instance and call its methods IN THE MAIN THREAD ONLY.
 /// </summary>
+/// <example> <b>Example 1:</b>
+/// <code>
+/// // list of nodes to be selected
+/// Vector<NodePtr> nodes = ...;
+/// // creating a new selector for objects from the list
+/// SelectorNodes *selector = SelectorNodes::createObjectsSelector(nodes);
+/// // ...
+/// // applying the action like this (simplest way)
+/// SelectionAction::applySelection(selector);
+/// </code>
+/// </example>
+/// <example> <b>Example 2:</b>
+/// <code>
+/// // list of nodes to be selected
+/// Vector<NodePtr> nodes = ...;
+/// // creating a new selector for objects from the list
+/// SelectorNodes *selector = SelectorNodes::createObjectsSelector(nodes);
+/// // ...
+/// // applying the action like this:
+/// UnigineEditor::Undo::apply(new SelectionAction(selector));
+/// </code>
+/// </example>
 class UNIGINE_EDITOR_API SelectionAction : public Action
 {
 public:
-	/// <summary>Creates a new selection action for the specified selector.</summary>
+	/// <summary>Creates a new selection action for the specified selector. SelectionAction takes ownership over the selector 's' passed as an argument, so this selector will be deleted in SelectionAction's destructor.</summary>
 	/// <param name="s">Selector defining a new selection.</param>
 	explicit SelectionAction(Selector *s);
 	~SelectionAction() override;
@@ -85,6 +107,17 @@ public:
 /// <summary>This class is used to represent any user's action creating nodes.
 /// Warning: this class is NOT THREAD-SAFE, you should create its instance and call its methods IN THE MAIN THREAD ONLY.
 /// </summary>
+/// <example> <b>Example:</b>
+/// <code>
+/// // creating a node
+/// Unigine::NodePtr node = ...;
+/// // changing node's settings
+/// node->setEnabled(true);
+/// //..
+/// // applying the action
+/// UnigineEditor::Undo::apply(new UnigineEditor::CreateNodesAction(node));
+/// </code>
+/// </example>
 class UNIGINE_EDITOR_API CreateNodesAction : public Action
 {
 public:
@@ -113,6 +146,15 @@ private:
 /// <summary>This class is used to represent any user's action removing nodes.
 /// Warning: this class is NOT THREAD-SAFE, you should create its instance and call its methods IN THE MAIN THREAD ONLY.
 /// </summary>
+/// <example> <b>Example:</b>
+/// <code>
+/// // getting a node to be deleted
+/// Unigine::NodePtr delete_node = ...;
+/// //..
+/// // applying the action
+/// UnigineEditor::Undo::apply(new UnigineEditor::RemoveNodesAction(delete_node));
+/// </code>
+/// </example>
 class UNIGINE_EDITOR_API RemoveNodesAction : public Action
 {
 public:
@@ -149,6 +191,18 @@ private:
 /// <summary>This class is used to represent any user's action setting node transforms.
 /// Warning: this class is NOT THREAD-SAFE, you should create its instance and call its methods IN THE MAIN THREAD ONLY.
 /// </summary>
+/// <example> <b>Example:</b>
+/// <code>
+/// // node to be transformed
+/// Unigine::NodePtr node = ...;
+/// //..
+/// // calculating new transformation
+/// const Mat4 &transform = ...
+/// //..
+/// // applying the action
+/// UnigineEditor::Undo::apply(new UnigineEditor::SetNodeTransformAction(node, transform));
+/// </code>
+/// </example>
 class UNIGINE_EDITOR_API SetNodeTransformAction : public Action
 {
 public:
@@ -182,6 +236,15 @@ private:
 /// <summary>This class is used to represent any user's action changing nodes parents.
 /// Warning: this class is NOT THREAD-SAFE, you should create its instance and call its methods IN THE MAIN THREAD ONLY.
 /// </summary>
+/// <example> <b>Example:</b>
+/// <code>
+/// // getting a node
+/// Unigine::NodePtr node = ...;
+/// //..
+/// // applying the action
+/// UnigineEditor::Undo::apply(new UnigineEditor::ReparentNodesAction(node, parent));
+/// </code>
+/// </example>
 class UNIGINE_EDITOR_API ReparentNodesAction : public Action
 {
 public:
@@ -208,6 +271,15 @@ private:
 /// <summary>This class is used to represent any user's action changing node's name.
 /// Warning: this class is NOT THREAD-SAFE, you should create its instance and call its methods IN THE MAIN THREAD ONLY.
 /// </summary>
+/// <example> <b>Example:</b>
+/// <code>
+/// // getting a node
+/// Unigine::NodePtr node = ...;
+/// //..
+/// // applying the action
+/// UnigineEditor::Undo::apply(new UnigineEditor::RenameNodeAction(node, new_name));
+/// </code>
+/// </example>
 class UNIGINE_EDITOR_API RenameNodeAction : public Action
 {
 public:
@@ -243,6 +315,15 @@ private:
 /// <summary>This class is used to represent any user's action changing node's enabled state.
 /// Warning: this class is NOT THREAD-SAFE, you should create its instance and call its methods IN THE MAIN THREAD ONLY.
 /// </summary>
+/// <example> <b>Example:</b>
+/// <code>
+/// // nodes to be enabled
+/// Vector<Unigine::NodePtr> cluster_nodes;
+/// //..
+/// // applying the action
+/// UnigineEditor::Undo::apply(new UnigineEditor::EnableNodeAction(cluster_nodes, true));
+/// </code>
+/// </example>
 class UNIGINE_EDITOR_API EnableNodeAction : public Action
 {
 public:
@@ -277,6 +358,15 @@ private:
 /// <summary>This class is used to represent any user's action changing node's flags.
 /// Warning: this class is NOT THREAD-SAFE, you should create its instance and call its methods IN THE MAIN THREAD ONLY.
 /// </summary>
+/// <example> <b>Example:</b>
+/// <code>
+/// // getting a node
+/// Unigine::NodePtr node = ...;
+/// //..
+/// // applying the action
+/// UnigineEditor::Undo::apply(new UnigineEditor::ChangeNodeFlagsAction(node, flag_num, true));
+/// </code>
+/// </example>
 class UNIGINE_EDITOR_API ChangeNodeFlagsAction : public Action
 {
 public:

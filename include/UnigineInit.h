@@ -11,13 +11,6 @@
 * UNIGINE. at http://unigine.com/
 */
 
-// ### SDK_COMMAND: BEGIN_REMOVE
-#ifdef UNIGINE_PS5
-	#include <ps5/UniginePS5Init.h>
-#elif _GAMING_XBOX
-	#include <xbox/UnigineXboxInit.h>
-#endif
-// ### SDK_COMMAND: END_REMOVE
 
 #ifdef _WIN32
 	#ifndef D3D12_AGILITY_SDK_VERSION

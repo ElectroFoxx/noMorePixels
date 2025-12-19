@@ -920,10 +920,9 @@ struct alignas(16) BoundBox
 	UNIGINE_INLINE bool insideValid(const vec3 &point, float radius) const
 	{
 		#ifdef USE_SSE
-			__m128 r = vec3(radius).vec;
-			__m128 direction = _mm_sub_ps(_mm_min_ps(_mm_max_ps(point.vec, minimum.vec), maximum.vec), point.vec);
-			direction = _mm_sub_ss(_mm_mul_ss(r, r), _mm_dot3(direction, direction));
-			return ((_mm_movemask_ps(direction) & 0x01) == 0);
+			__m128 clamped = _mm_min_ps(_mm_max_ps(point.vec, minimum.vec), maximum.vec);
+			__m128 delta = _mm_sub_ps(clamped, point.vec);
+			return _mm_comile_ss(_mm_dot3(delta, delta), _mm_set_ss(radius * radius));
 		#else
 			vec3 direction;
 			if (minimum.x > point.x)
@@ -1373,33 +1372,36 @@ struct alignas(16) BoundFrustum
 			points[i] = vec3_zero;
 	}
 
-	/// <summary>Sets the bounding frustum by the specified projection and modelview matrices.</summary>
+	/// <summary>Sets the bounding frustum by the specified projection with depth range of [-1; 1] and modelview matrices.</summary>
 	UNIGINE_INLINE void set(const mat4 &projection, const mat4 &modelview)
 	{
 		set(projection * modelview);
+
+		if (isAsymmetricFrustumProjection(projection))
+			camera = inverse(modelview).getColumn3(3);
 	}
-	/// <summary>Sets the bounding frustum by the specified projection matrix.</summary>
-	UNIGINE_INLINE void set(const mat4 &proj)
+	/// <summary>Sets the bounding frustum by the specified modelview projection matrix.</summary>
+	UNIGINE_INLINE void set(const mat4 &modelview_projection)
 	{
 		// TODO: Add enum
 		// clipping planes
-		planes[0].set(proj.m30 + proj.m00, proj.m31 + proj.m01, proj.m32 + proj.m02, proj.m33 + proj.m03); // Left
-		planes[1].set(proj.m30 - proj.m00, proj.m31 - proj.m01, proj.m32 - proj.m02, proj.m33 - proj.m03); // Right
-		planes[2].set(proj.m30 + proj.m10, proj.m31 + proj.m11, proj.m32 + proj.m12, proj.m33 + proj.m13); // Bottom
-		planes[3].set(proj.m30 - proj.m10, proj.m31 - proj.m11, proj.m32 - proj.m12, proj.m33 - proj.m13); // Top
-		planes[4].set(proj.m30 + proj.m20, proj.m31 + proj.m21, proj.m32 + proj.m22, proj.m33 + proj.m23); // Near
-		planes[5].set(proj.m30 - proj.m20, proj.m31 - proj.m21, proj.m32 - proj.m22, proj.m33 - proj.m23); // Far
+		planes[0].set(modelview_projection.m30 + modelview_projection.m00, modelview_projection.m31 + modelview_projection.m01, modelview_projection.m32 + modelview_projection.m02, modelview_projection.m33 + modelview_projection.m03); // Left
+		planes[1].set(modelview_projection.m30 - modelview_projection.m00, modelview_projection.m31 - modelview_projection.m01, modelview_projection.m32 - modelview_projection.m02, modelview_projection.m33 - modelview_projection.m03); // Right
+		planes[2].set(modelview_projection.m30 + modelview_projection.m10, modelview_projection.m31 + modelview_projection.m11, modelview_projection.m32 + modelview_projection.m12, modelview_projection.m33 + modelview_projection.m13); // Bottom
+		planes[3].set(modelview_projection.m30 - modelview_projection.m10, modelview_projection.m31 - modelview_projection.m11, modelview_projection.m32 - modelview_projection.m12, modelview_projection.m33 - modelview_projection.m13); // Top
+		planes[4].set(modelview_projection.m30 + modelview_projection.m20, modelview_projection.m31 + modelview_projection.m21, modelview_projection.m32 + modelview_projection.m22, modelview_projection.m33 + modelview_projection.m23); // Near
+		planes[5].set(modelview_projection.m30 - modelview_projection.m20, modelview_projection.m31 - modelview_projection.m21, modelview_projection.m32 - modelview_projection.m22, modelview_projection.m33 - modelview_projection.m23); // Far
 		for (int i = 0; i < 6; i++)
 			planes[i] *= planes[i].xyz.iLength();
 
-		mat4 iproj;
-		inverse(iproj, reverseDepthHardwareProjection(proj));
+		mat4 imodelview_projection;
+		inverse(imodelview_projection, reverseDepthHardwareProjection(modelview_projection));
 
 		// camera
-		camera.x = iproj.m03;
-		camera.y = iproj.m13;
-		camera.z = iproj.m23 + 1.0f;
-		camera /= iproj.m33;
+		camera.x = imodelview_projection.m03;
+		camera.y = imodelview_projection.m13;
+		camera.z = imodelview_projection.m23 + 1.0f;
+		camera /= imodelview_projection.m33;
 
 		// points
 		points[0].set(-1.0f, -1.0f, 1.0f);
@@ -1410,7 +1412,7 @@ struct alignas(16) BoundFrustum
 		points[5].set(1.0f, -1.0f, 0.0f);
 		points[6].set(-1.0f, 1.0f, 0.0f);
 		points[7].set(1.0f, 1.0f, 0.0f);
-		Simd::projMat4Vec3(points, sizeof(vec3), iproj, points, sizeof(vec3), 8);
+		Simd::projMat4Vec3(points, sizeof(vec3), imodelview_projection, points, sizeof(vec3), 8);
 
 		update_bounds();
 	}

@@ -581,6 +581,7 @@ public:
 	static Event<> &getEventEndVisualizer();
 	static Event<> &getEventEndScreen();
 	static Event<> &getEventEnd();
+	static Event<> &getEventEndVRQuadComposeEyeSwapchains();
 	static Event<> &getEventEndFrameExecuteCommandLists();
 	static void setData(const char *data);
 	static const char *getData();

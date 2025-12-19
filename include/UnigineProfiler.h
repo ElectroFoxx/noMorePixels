@@ -56,17 +56,13 @@ public:
 
 struct ScopedProfiler
 {
-	int id;
+	int id{-1};
 	ScopedProfiler(const char *name, bool gpu = false)
-	{
-		if (Profiler::isInitialized())
-			id = Profiler::beginMicro(name, gpu);
-		else
-			id = -1;
-	}
+		: id(Profiler::isInitialized() ? Profiler::beginMicro(name, gpu) : -1)
+	{}
 	~ScopedProfiler()
 	{
-		if (Profiler::isInitialized() && id != -1)
+		if (id != -1)
 			Profiler::endMicro(id);
 	}
 };

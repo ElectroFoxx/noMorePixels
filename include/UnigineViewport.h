@@ -209,6 +209,7 @@ public:
 	Event<> &getEventEndVisualizer();
 	Event<> &getEventEndScreen();
 	Event<> &getEventEnd();
+	Event<> &getEventEndVRQuadComposeEyeSwapchains();
 };
 typedef Ptr<Viewport> ViewportPtr;
 typedef Ptr<const Viewport> ConstViewportPtr;

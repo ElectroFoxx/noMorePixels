@@ -197,7 +197,7 @@ ScopeExit<F> makeScopeExit(F &&f)
 #define UNIGINE_SCOPE_EXIT(lambda) \
 	auto UNIGINE_CONCATENATE(scope_exit_var, __LINE__) = Unigine::makeScopeExit(lambda);
 
-}
+} // namespace Unigine
 
 // Minimal WinAPI
 #ifdef _WIN32
@@ -205,17 +205,12 @@ ScopeExit<F> makeScopeExit(F &&f)
 struct _RTL_CRITICAL_SECTION;
 struct _RTL_SRWLOCK;
 
-namespace Unigine
-{
-namespace WinAPI
-{
-
 typedef int BOOL;
 typedef unsigned char BOOLEAN;
 
 typedef _RTL_CRITICAL_SECTION* LPCRITICAL_SECTION;
 
-typedef _RTL_SRWLOCK RTL_SRWLOCK, *PRTL_SRWLOCK;
+typedef _RTL_SRWLOCK RTL_SRWLOCK;
 typedef RTL_SRWLOCK *PSRWLOCK;
 
 extern "C"
@@ -239,60 +234,78 @@ extern "C"
 	__declspec(dllimport) BOOLEAN __stdcall TryAcquireSRWLockExclusive(PSRWLOCK SRWLock);
 }
 
+namespace Unigine
+{
+namespace WinAPI
+{
+
 struct CRITICAL_SECTION { void *Opaque1[1]; long Opaque2[2]; void *Opaque3[3]; };
 struct SRWLOCK { void *Ptr; };
 
-UNIGINE_INLINE void __stdcall InitializeCriticalSection(CRITICAL_SECTION *lpCriticalSection) noexcept
+UNIGINE_INLINE unsigned long GetCurrentThreadId() noexcept
 {
-	InitializeCriticalSection((LPCRITICAL_SECTION)lpCriticalSection);
+	return ::GetCurrentThreadId();
 }
-UNIGINE_INLINE void __stdcall DeleteCriticalSection(CRITICAL_SECTION *lpCriticalSection) noexcept
+UNIGINE_INLINE BOOL SwitchToThread() noexcept
 {
-	DeleteCriticalSection((LPCRITICAL_SECTION)lpCriticalSection);
+	return ::SwitchToThread();
 }
-UNIGINE_INLINE BOOL __stdcall TryEnterCriticalSection(CRITICAL_SECTION *lpCriticalSection) noexcept
+UNIGINE_INLINE void Sleep(unsigned long dwMilliseconds) noexcept
 {
-	return TryEnterCriticalSection((LPCRITICAL_SECTION)lpCriticalSection);
-}
-UNIGINE_INLINE void __stdcall EnterCriticalSection(CRITICAL_SECTION *lpCriticalSection) noexcept
-{
-	EnterCriticalSection((LPCRITICAL_SECTION)lpCriticalSection);
-}
-UNIGINE_INLINE void __stdcall LeaveCriticalSection(CRITICAL_SECTION *lpCriticalSection) noexcept
-{
-	LeaveCriticalSection((LPCRITICAL_SECTION)lpCriticalSection);
+	::Sleep(dwMilliseconds);
 }
 
-UNIGINE_INLINE void __stdcall InitializeSRWLock(SRWLOCK *SRWLock) noexcept
+UNIGINE_INLINE void InitializeCriticalSection(CRITICAL_SECTION *lpCriticalSection) noexcept
 {
-	InitializeSRWLock((PSRWLOCK)SRWLock);
+	::InitializeCriticalSection(reinterpret_cast<LPCRITICAL_SECTION>(lpCriticalSection));
 }
-UNIGINE_INLINE void __stdcall AcquireSRWLockShared(SRWLOCK *SRWLock) noexcept
+UNIGINE_INLINE void DeleteCriticalSection(CRITICAL_SECTION *lpCriticalSection) noexcept
 {
-	AcquireSRWLockShared((PSRWLOCK)SRWLock);
+	::DeleteCriticalSection(reinterpret_cast<LPCRITICAL_SECTION>(lpCriticalSection));
 }
-UNIGINE_INLINE void __stdcall ReleaseSRWLockShared(SRWLOCK *SRWLock) noexcept
+UNIGINE_INLINE BOOL TryEnterCriticalSection(CRITICAL_SECTION *lpCriticalSection) noexcept
 {
-	ReleaseSRWLockShared((PSRWLOCK)SRWLock);
+	return ::TryEnterCriticalSection(reinterpret_cast<LPCRITICAL_SECTION>(lpCriticalSection));
 }
-UNIGINE_INLINE BOOLEAN __stdcall TryAcquireSRWLockShared(SRWLOCK *SRWLock) noexcept
+UNIGINE_INLINE void EnterCriticalSection(CRITICAL_SECTION *lpCriticalSection) noexcept
 {
-	return TryAcquireSRWLockShared((PSRWLOCK)SRWLock);
+	::EnterCriticalSection(reinterpret_cast<LPCRITICAL_SECTION>(lpCriticalSection));
 }
-UNIGINE_INLINE void __stdcall AcquireSRWLockExclusive(SRWLOCK *SRWLock) noexcept
+UNIGINE_INLINE void LeaveCriticalSection(CRITICAL_SECTION *lpCriticalSection) noexcept
 {
-	AcquireSRWLockExclusive((PSRWLOCK)SRWLock);
+	::LeaveCriticalSection(reinterpret_cast<LPCRITICAL_SECTION>(lpCriticalSection));
 }
-UNIGINE_INLINE void __stdcall ReleaseSRWLockExclusive(SRWLOCK *SRWLock) noexcept
+
+UNIGINE_INLINE void InitializeSRWLock(SRWLOCK *SRWLock) noexcept
 {
-	ReleaseSRWLockExclusive((PSRWLOCK)SRWLock);
+	::InitializeSRWLock(reinterpret_cast<PSRWLOCK>(SRWLock));
 }
-UNIGINE_INLINE BOOLEAN __stdcall TryAcquireSRWLockExclusive(SRWLOCK *SRWLock) noexcept
+UNIGINE_INLINE void AcquireSRWLockShared(SRWLOCK *SRWLock) noexcept
 {
-	return TryAcquireSRWLockExclusive((PSRWLOCK)SRWLock);
+	::AcquireSRWLockShared(reinterpret_cast<PSRWLOCK>(SRWLock));
 }
-};
-};
+UNIGINE_INLINE void ReleaseSRWLockShared(SRWLOCK *SRWLock) noexcept
+{
+	::ReleaseSRWLockShared(reinterpret_cast<PSRWLOCK>(SRWLock));
+}
+UNIGINE_INLINE BOOLEAN TryAcquireSRWLockShared(SRWLOCK *SRWLock) noexcept
+{
+	return ::TryAcquireSRWLockShared(reinterpret_cast<PSRWLOCK>(SRWLock));
+}
+UNIGINE_INLINE void AcquireSRWLockExclusive(SRWLOCK *SRWLock) noexcept
+{
+	::AcquireSRWLockExclusive(reinterpret_cast<PSRWLOCK>(SRWLock));
+}
+UNIGINE_INLINE void ReleaseSRWLockExclusive(SRWLOCK *SRWLock) noexcept
+{
+	::ReleaseSRWLockExclusive(reinterpret_cast<PSRWLOCK>(SRWLock));
+}
+UNIGINE_INLINE BOOLEAN TryAcquireSRWLockExclusive(SRWLOCK *SRWLock) noexcept
+{
+	return ::TryAcquireSRWLockExclusive(reinterpret_cast<PSRWLOCK>(SRWLock));
+}
+} // namespace WinAPI
+} // namespace Unigine
 #endif
 
 /*

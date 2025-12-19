@@ -3645,7 +3645,7 @@
 		</member>
 		<member name="M:Unigine.RenderState.dispatch(int,int,int)">
 			<summary>
-			Executes commands in a compute shader (similar to ID3D11DeviceContext::Dispatch() method). A compute shader can be run on many threads in parallel, within a thread group. Index a particular thread, within a thread group using a 3D vector given by (x,y,z).
+			Executes commands in a compute shader (similar to ID3D12GraphicsCommandList::Dispatch or vkCmdDispatch method). A compute shader can be run on many threads in parallel, within a thread group. Index a particular thread, within a thread group using a 3D vector given by (x,y,z).
 			</summary> 
 			<param name="group_threads_x"> Local X work-group size of the compute shader. </param>
 			<param name="group_threads_y"> Local Y work-group size of the compute shader. </param>

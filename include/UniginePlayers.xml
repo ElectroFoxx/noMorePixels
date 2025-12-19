@@ -152,10 +152,10 @@
 		</member>
 		<member name="M:Unigine.Player.getScreenPosition(int,int,Unigine.Math.Vec3,int,int) const">
 			<summary>
-			Projects the point in world coordinates to the screen. Screen coordinates are written into the first 2 variables passed to the method.
+			Projects the point in world coordinates to the screen. Screen coordinates are written into the first 2 variables passed to the method (in pixels).
 			</summary> 
-			<param name="x"> X-coordinate of the screen position. </param>
-			<param name="y"> Y-coordinate of the screen position. </param>
+			<param name="x"> X-coordinate of the screen position (in pixels). </param>
+			<param name="y"> Y-coordinate of the screen position (in pixels). </param>
 			<param name="point"> Point coordinates. </param>
 			<param name="screen_width"> Screen width. </param>
 			<param name="screen_height"> Screen height. </param> 
@@ -461,19 +461,19 @@
 		</member>
 		<member name="M:Unigine.Player.getMainWindowPosition(int,int,Unigine.Math.Vec3) const">
 			<summary>
-			Projects the point in world coordinates relative to the main window. The coordinates are written into the first 2 variables passed to the method.
+			Projects the point in world coordinates relative to the main window. The coordinates are written into the first 2 variables passed to the method (in pixels).
 			</summary> 
-			<param name="x"> X-coordinate of the screen position. </param>
-			<param name="y"> Y-coordinate of the screen position. </param>
+			<param name="x"> X-coordinate of the screen position (in pixels). </param>
+			<param name="y"> Y-coordinate of the screen position (in pixels). </param>
 			<param name="point"> Point coordinates. </param> 
 			<returns>1 if the point has been projected successfully; otherwise, 0.</returns>
 		</member>
 		<member name="M:Unigine.Player.getWindowPosition(int,int,Unigine.Math.Vec3,Unigine.Ptr{EngineWindowViewport}) const">
 			<summary>
-			Projects the point in world coordinates relative to the specified window viewport. The coordinates are written into the first 2 variables passed to the method.
+			Projects the point in world coordinates relative to the specified window viewport. The coordinates are written into the first 2 variables passed to the method (in pixels).
 			</summary> 
-			<param name="x"> X-coordinate of the screen position. </param>
-			<param name="y"> Y-coordinate of the screen position. </param>
+			<param name="x"> X-coordinate of the screen position  (in pixels). </param>
+			<param name="y"> Y-coordinate of the screen position (in pixels). </param>
 			<param name="point"> Point coordinates. </param>
 			<param name="window"> Window viewport relative to which the projection is returned. </param> 
 			<returns>1 if the point has been projected successfully; otherwise, 0.</returns>

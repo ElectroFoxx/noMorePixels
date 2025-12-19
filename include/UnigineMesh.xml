@@ -84,7 +84,7 @@
 		</member>
 		<member name="M:Unigine.Mesh.getBoneTransforms(Unigine.Vector{Unigine.Math.mat4,int,Unigine.VectorAllocator}) const">
 			<summary>
-			Appends the world-space transformation matrices for bones of the given animation frame to the given array.					If the passed animation number is -1, the bind pose will be added to the given array.The number of array elements must be equal to the number of animation bones.
+								Populates the provided vector with transformation matrices for each bone of the mesh. The vector will be resized to match the number of bones. Each index corresponds to a bone in the mesh (0 is the root bone).
 			</summary> 
 			<param name="transforms"> Target array for transformation matrices. </param> 
 		</member>
@@ -97,7 +97,7 @@
 		</member>
 		<member name="M:Unigine.Mesh.setBoundBox(Unigine.Math.BoundBox)">
 			<summary>
-			Sets the bounding box for the given mesh surface.
+			Sets the bounding box for the current mesh.
 			</summary> 
 			<param name="bb"> Bounding box to be set. </param> 
 		</member>
@@ -110,13 +110,13 @@
 		</member>
 		<member name="M:Unigine.Mesh.getBoundBox const">
 			<summary>
-			Returns the bounding box of the given mesh surface.
+			Returns the bounding box of the current mesh.
 			</summary>  
 			<returns>Bounding box.</returns>
 		</member>
 		<member name="M:Unigine.Mesh.setBoundSphere(Unigine.Math.BoundSphere)">
 			<summary>
-			Sets the bounding sphere for the given mesh surface.
+			Sets the bounding sphere for the current mesh.
 			</summary> 
 			<param name="bs"> Bounding sphere to be set. </param> 
 		</member>
@@ -129,7 +129,7 @@
 		</member>
 		<member name="M:Unigine.Mesh.getBoundSphere const">
 			<summary>
-			Returns the bounding sphere of the given surface.
+			Returns the bounding sphere of the current mesh.
 			</summary>  
 			<returns>Bounding sphere.</returns>
 		</member>

@@ -182,18 +182,6 @@
 			</summary> 
 			<param name="name"> Name of the layer. </param> 
 		</member>
-		<member name="M:Unigine.NodeLayer.setNodePath(char)">
-			<summary>
-			Updates the name of the node layer: a path to a .node file where child nodes of the layer are stored.
-			</summary> 
-			<param name="name"> Path to a .node file. </param> 
-		</member>
-		<member name="M:Unigine.NodeLayer.getNodePath">
-			<summary>
-			Returns the name of the node layer: a path to a .node file where child nodes of the layer are stored.
-			</summary>  
-			<returns>Path to the .node file.</returns>
-		</member>
 		<member name="M:Unigine.NodeLayer.type">
 			<summary>
 			Returns the type of the node.
@@ -205,24 +193,6 @@
 			Constructor. Creates a new object that references a node from a given file.
 			</summary> 
 			<param name="name"> Path to a *.node file.  </param> 
-		</member>
-		<member name="M:Unigine.NodeReference.setNodePath(char)">
-			<summary>
-			Sets a reference to a new *.node file.
-			</summary> 
-			<param name="name"> Path to a *.node file. </param> 
-		</member>
-		<member name="M:Unigine.NodeReference.getNodePath">
-			<summary>
-			Returns the path to the referenced *.node file.
-			</summary>  
-			<returns>Path to the referenced *.node file.</returns>
-		</member>
-		<member name="M:Unigine.NodeReference.getReference">
-			<summary>
-			Returns the node stored by the reference. The method should be used when you need to change the referenced node. If getReference() has returned a NodeDummy instance, it means that several nodes of the same hierarchy level has been converted into the NodeReference.
-			</summary>  
-			<returns>Node instance.</returns>
 		</member>
 		<member name="M:Unigine.NodeReference.canBeReference(char,Unigine.Ptr{Unigine.Node})">
 			<summary>

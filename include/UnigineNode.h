@@ -371,6 +371,7 @@ public:
 	Ptr<GeodeticPivot> getGeodeticPivot() const;
 	void applyReplacePaths();
 	void updateEnabled();
+	Event<const Ptr<Node> &> &getEventTransformChanged();
 	static Event<const Ptr<Node> &, int> &getEventPropertyNodeSlotsChanged();
 	static Event<const Ptr<Node> &, const Ptr<Property> &, int> &getEventPropertyNodeAdd();
 	static Event<const Ptr<Node> &, const Ptr<Property> &, int> &getEventPropertyNodeRemove();
@@ -384,6 +385,11 @@ public:
 	static Event<const Ptr<Node> &> &getEventNodeChangeEnabled();
 	static Event<const Ptr<Node> &, const Ptr<Node> &> &getEventNodeClone();
 	static Event<const Ptr<Node> &, const Ptr<Node> &> &getEventNodeSwap();
+
+private:
+
+	EventHolder<EventInterfaceInvoker<const Ptr<Node> &>> event_transform_changed;
+	EventInterfaceConnection<EventInterfaceInvoker<const Ptr<Node> &>> event_transform_changed_connection;
 };
 typedef Ptr<Node> NodePtr;
 typedef Ptr<const Node> ConstNodePtr;

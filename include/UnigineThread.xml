@@ -576,7 +576,7 @@
 		</member>
 		<member name="M:Unigine.AtomicPointer.store(Type)">
 			<summary>
-			Atomically stores a new pointer value
+			Atomically stores a new pointer value.
 			</summary> 
 			<param name="v"> The new pointer value to store atomically. </param> 
 		</member>

@@ -3585,13 +3585,13 @@
 			<summary>
 			Sets a flag indicating if a horizontal scroll bar is hidden, disabled or always rendered.
 			</summary> 
-			<param name="hidden"> Hide mode:0 to always render a scroll bar.1 to automatically hide a scroll bar, if necessary. If the container area is big enough to show all elements, the scroll bar is not rendered. And vice versa, if not all elements can be shown at once, a scroll bar is rendered.2 to always hide a scroll bar. In this mode, scroll bar bounds, though a bar itself is not rendered, are still taken into account when the widget bounds are calculated.3 to always hide a scroll bar and not to add scroll bar size when calculating widget bounds. </param> 
+			<param name="hidden"> Hide flag, one of the SCROLL_RENDER_MODE values. </param> 
 		</member>
 		<member name="M:Unigine.WidgetScrollBox.getHScrollHidden const">
 			<summary>
 			Returns a flag indicating if a horizontal scroll bar is hidden, disabled or always rendered.
 			</summary>  
-			<returns>Hide flag:0 if a scroll bar is always rendered.1 if a scroll bar is automatically hidden when necessary. For example, if the container area is big enough to show all elements, the scroll bar is not rendered. And vice versa, if not all elements can be shown at once, a scroll bar is rendered.2 if a scroll bar is always hidden. In this mode, scroll bar bounds, though a bar itself is not rendered, are still taken into account when the widget bounds are calculated.3 if a scroll bar is always hidden and its size is not added to widget bounds.</returns>
+			<returns>Hide flag, one of the SCROLL_RENDER_MODE values.</returns>
 		</member>
 		<member name="M:Unigine.WidgetScrollBox.getHScrollObjectSize const">
 			<summary>
@@ -3697,13 +3697,13 @@
 			<summary>
 			Sets a flag indicating if a vertical scroll bar is hidden, disabled or always rendered.
 			</summary> 
-			<param name="hidden"> Hide mode:0 to always render a scroll bar.1 to automatically hide a scroll bar, if necessary. If the container area is big enough to show all elements, the scroll bar is not rendered. And vice versa, if not all elements can be shown at once, a scroll bar is rendered.2 to always hide a scroll bar. In this mode, scroll bar bounds, though a bar itself is not rendered, are still taken into account when the widget bounds are calculated.3 to always hide a scroll bar and not to add scroll bar size when calculating widget bounds. </param> 
+			<param name="hidden"> Hide flag, one of the SCROLL_RENDER_MODE values. </param> 
 		</member>
 		<member name="M:Unigine.WidgetScrollBox.getVScrollHidden const">
 			<summary>
 			Returns a flag indicating if a vertical scroll bar is hidden, disabled or always rendered.
 			</summary>  
-			<returns>Hide flag:0 if a scroll bar is always rendered.1 if a scroll bar is automatically hidden when necessary. For example, if the container area is big enough to show all elements, the scroll bar is not rendered. And vice versa, if not all elements can be shown at once, a scroll bar is rendered.2 if a scroll bar is always hidden. In this mode, scroll bar bounds, though a bar itself is not rendered, are still taken into account when the widget bounds are calculated.3 if a scroll bar is always hidden and its size is not added to widget bounds.</returns>
+			<returns>Hide flag, one of the SCROLL_RENDER_MODE values.</returns>
 		</member>
 		<member name="M:Unigine.WidgetScrollBox.getVScrollObjectSize const">
 			<summary>
@@ -3800,6 +3800,26 @@
 			Returns the horizontal scroller object.
 			</summary>  
 			<returns>Horizontal scroller.</returns>
+		</member>
+		<member name="F:Unigine.WidgetScrollBox.ALWAYS_HIDE_NO_BOUNDS">
+			<summary>
+			Scroll bar is always hidden and its size is not added to widget bounds.
+		</summary>
+		</member>
+		<member name="F:Unigine.WidgetScrollBox.ALWAYS_HIDE">
+			<summary>
+			Scroll bar is always hidden. In this mode, though a bar itself is not rendered, the scroll bar bounds are still taken into account when the widget bounds are calculated.
+		</summary>
+		</member>
+		<member name="F:Unigine.WidgetScrollBox.AUTO_HIDE">
+			<summary>
+			Scroll bar is automatically hidden when necessary. For example, if the container area is big enough to show all elements, the scroll bar is not rendered. And vice versa, if not all elements can be shown at once, a scroll bar is rendered.
+		</summary>
+		</member>
+		<member name="F:Unigine.WidgetScrollBox.ALWAYS_RENDER">
+			<summary>
+			Scroll bar is always rendered.
+		</summary>
 		</member>
 		<member name="M:Unigine.WidgetSlider.#ctor(Unigine.Ptr{Gui},int,int,int)">
 			<summary>
