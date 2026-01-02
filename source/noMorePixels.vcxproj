@@ -77,13 +77,41 @@
     <ClCompile Include="AppSystemLogic.cpp" />
     <ClCompile Include="AppWorldLogic.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="noMorePixels\noMorePixels.cpp" />
+    <ClCompile Include="noMorePixels\base\Interactive.cpp" />
+    <ClCompile Include="noMorePixels\base\WidgetBase.cpp" />
+    <ClCompile Include="noMorePixels\base\WidgetContainerBase.cpp" />
+    <ClCompile Include="noMorePixels\Settings.cpp" />
+    <ClCompile Include="noMorePixels\UI.cpp" />
+    <ClCompile Include="noMorePixels\widgets\CheckBox.cpp" />
+    <ClCompile Include="noMorePixels\widgets\EditLine.cpp" />
+    <ClCompile Include="noMorePixels\widgets\HBox.cpp" />
+    <ClCompile Include="noMorePixels\widgets\Label.cpp" />
+    <ClCompile Include="noMorePixels\widgets\Scroll.cpp" />
+    <ClCompile Include="noMorePixels\widgets\ScrollBox.cpp" />
+    <ClCompile Include="noMorePixels\widgets\VBox.cpp" />
+    <ClCompile Include="TestPlayer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AppEditorLogic.h" />
     <ClInclude Include="AppSystemLogic.h" />
     <ClInclude Include="AppWorldLogic.h" />
+    <ClInclude Include="noMorePixels\base\Interactive.h" />
+    <ClInclude Include="noMorePixels\base\WidgetContainerBase.h" />
     <ClInclude Include="noMorePixels\noMorePixels.h" />
+    <ClInclude Include="noMorePixels\Settings.h" />
+    <ClInclude Include="noMorePixels\types\Align.h" />
+    <ClInclude Include="noMorePixels\types\ScaleSettings.h" />
+    <ClInclude Include="noMorePixels\types\ScaleType.h" />
+    <ClInclude Include="noMorePixels\base\WidgetBase.h" />
+    <ClInclude Include="noMorePixels\UI.h" />
+    <ClInclude Include="noMorePixels\widgets\CheckBox.h" />
+    <ClInclude Include="noMorePixels\widgets\EditLine.h" />
+    <ClInclude Include="noMorePixels\widgets\HBox.h" />
+    <ClInclude Include="noMorePixels\widgets\Label.h" />
+    <ClInclude Include="noMorePixels\widgets\Scroll.h" />
+    <ClInclude Include="noMorePixels\widgets\ScrollBox.h" />
+    <ClInclude Include="noMorePixels\widgets\VBox.h" />
+    <ClInclude Include="TestPlayer.h" />
   </ItemGroup>
   <ItemGroup>
     <Natvis Include="../utils/natvis/unigine_stl.natvis" />

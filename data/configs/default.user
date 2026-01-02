@@ -3,7 +3,7 @@
 	<console_height>75</console_height>
 	<console_key>BACK_QUOTE</console_key>
 	<console_key_modifier/>
-	<console_onscreen>0</console_onscreen>
+	<console_onscreen>1</console_onscreen>
 	<console_onscreen_font_size>14</console_onscreen_font_size>
 	<console_onscreen_height>20</console_onscreen_height>
 	<console_onscreen_time>2</console_onscreen_time>

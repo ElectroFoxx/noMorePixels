@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<asset version="2.20.0.0">
+	<guid>bd6f7ad098722ca9b322d4ea41c2fae41e5a63d1</guid>
+	<type>property</type>
+	<hash>a30c888e</hash>
+	<runtimes>
+		<runtime id="bd6f7ad098722ca9b322d4ea41c2fae41e5a63d1" name="TestPlayer" link="0" type="4"/>
+	</runtimes>
+</asset>

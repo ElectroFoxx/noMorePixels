@@ -1,11 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.12.35728.132
+# Visual Studio Version 18
+VisualStudioVersion = 18.1.11312.151 d18.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "noMorePixels", "source\noMorePixels.vcxproj", "{C7004ED9-ED21-3249-DB1B-EFF0C58376C6}"
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "noMoPiUnitTests", "noMoPiUnitTests\noMoPiUnitTests.vcxproj", "{266EDE61-6802-6420-C8C1-5B6954987237}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -17,10 +15,6 @@ Global
 		{C7004ED9-ED21-3249-DB1B-EFF0C58376C6}.Debug|x64.Build.0 = Debug|x64
 		{C7004ED9-ED21-3249-DB1B-EFF0C58376C6}.Release|x64.ActiveCfg = Release|x64
 		{C7004ED9-ED21-3249-DB1B-EFF0C58376C6}.Release|x64.Build.0 = Release|x64
-		{266EDE61-6802-6420-C8C1-5B6954987237}.Debug|x64.ActiveCfg = Debug|x64
-		{266EDE61-6802-6420-C8C1-5B6954987237}.Debug|x64.Build.0 = Debug|x64
-		{266EDE61-6802-6420-C8C1-5B6954987237}.Release|x64.ActiveCfg = Release|x64
-		{266EDE61-6802-6420-C8C1-5B6954987237}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

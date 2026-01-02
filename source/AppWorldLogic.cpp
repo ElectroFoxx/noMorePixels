@@ -90,6 +90,8 @@ int AppWorldLogic::init()
 		hbox->addChild(vbox1);
 		hbox->addChild(vbox2);
 
+		ui.clear();
+
 		ui.updateLayout();
 		//ui.setDictionary("test.xml");
 		//ui.setLanguage("en");
@@ -102,11 +104,13 @@ int AppWorldLogic::init()
 
 int AppWorldLogic::update()
 {
+	
 	return 1;
 }
 
 int AppWorldLogic::postUpdate()
 {
+	
 	return 1;
 }
 
