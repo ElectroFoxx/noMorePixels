@@ -29,6 +29,7 @@ namespace noMoPi
 		void _updateFont(int32_t width);
 		virtual void translate();
 
+		~Label();
 	protected:
 		void _calculateMaxFontParams();
 
@@ -50,5 +51,7 @@ namespace noMoPi
 
 		float _fontHSpacing = 0.f;
 		float _fontVSpacing = 0.f;
+
+		
 	};
 }

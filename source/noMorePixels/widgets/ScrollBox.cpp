@@ -8,7 +8,7 @@ noMoPi::ScrollBox::ScrollBox(const ScaleSettings& scaleSettings) : WidgetContain
 	hbox->setBackground(true);
 	hbox->setBackgroundColor(Unigine::Math::vec4(0.5f, 1.f, 1.f, 1.f));
 
-	_widget = hbox;
+	_rootWidget = hbox;
 
 	Unigine::WidgetScrollBoxPtr scrollbox = Unigine::WidgetScrollBox::create();
 	scrollbox->setBorder(0);

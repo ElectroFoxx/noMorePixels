@@ -8,6 +8,7 @@ namespace noMoPi
 	{
 	public:
 		WidgetContainerBase(const ScaleSettings& scaleSettings) : WidgetBase(scaleSettings) {}
+
 		virtual void resize(int32_t width, int32_t height);
 		virtual void translate();
 		virtual void tick(float deltaTime);
@@ -29,10 +30,8 @@ namespace noMoPi
 		WidgetContainerBase* setBackgroundTexture(const Unigine::String& texture);
 		WidgetContainerBase* setBackgroundTextureFiltering(int32_t filtering);
 
-		int32_t getWidth() const { return _widget->getWidth(); }
-		int32_t getHeight() const { return _widget->getHeight(); }
-		int32_t getContainerWidth() const { return _containterWidget ? _containterWidget->getWidth() : _widget->getWidth(); }
-		int32_t getContainerHeight() const { return _containterWidget ? _containterWidget->getHeight() : _widget->getHeight(); }
+		int32_t getContainerWidth() const { return _containterWidget ? _containterWidget->getWidth() : _rootWidget->getWidth(); }
+		int32_t getContainerHeight() const { return _containterWidget ? _containterWidget->getHeight() : _rootWidget->getHeight(); }
 	protected:
 		enum class PaddingIndex : uint8_t
 		{

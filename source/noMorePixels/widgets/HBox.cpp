@@ -1,14 +1,17 @@
 #include "HBox.h"
 
+#include "../Settings.h"
+
 using namespace noMoPi;
 
 HBox::HBox(const ScaleSettings& scaleSettings) : WidgetContainerBase(scaleSettings)
 {
-	_widget = Unigine::WidgetHBox::create();
-	_containterWidget = _widget;
+	_rootWidget = Unigine::WidgetHBox::create();
+	_rootWidget->setLifetime(Unigine::Widget::LIFETIME_MANUAL);
+	_containterWidget = _rootWidget;
 
-	if (Unigine::WidgetHBoxPtr hbox = Unigine::static_ptr_cast<Unigine::WidgetHBox>(_widget))
+	if (Unigine::WidgetHBoxPtr hbox = Unigine::static_ptr_cast<Unigine::WidgetHBox>(_rootWidget))
 	{
-		hbox->setBackgroundTexture(".noMorePixels/textures/white.png");
+		hbox->setBackgroundTexture(Settings::get().getWhiteBackground());
 	}
 }

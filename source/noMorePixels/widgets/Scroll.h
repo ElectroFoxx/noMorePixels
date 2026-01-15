@@ -17,6 +17,9 @@ namespace noMoPi
 		Scroll* setRange(int32_t minValue, int32_t maxValue);
 		Scroll* setIsReversed(bool isReversed);
 		Unigine::Event<const Unigine::WidgetPtr&>& getEventChanged() { return _coreSlider->getEventChanged(); }
+	
+		~Scroll();
+	
 	private:
 		void _sliderChanged(const Unigine::WidgetPtr& widget);
 		void _topOrLeftClicked(const Unigine::WidgetPtr& widget, int32_t mouse);

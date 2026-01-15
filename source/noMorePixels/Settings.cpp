@@ -9,7 +9,7 @@ Unigine::String Settings::getLocalizationPath(const Unigine::String& file) const
 
 Unigine::String Settings::getFontsPath(const Unigine::String& font) const
 {
-	return _rootFolder + _localizationFolder + font;
+	return _rootFolder + _fontsFolder + font;
 }
 
 Unigine::String Settings::getTexturesPath(const Unigine::String& texture) const
@@ -19,10 +19,10 @@ Unigine::String Settings::getTexturesPath(const Unigine::String& texture) const
 
 Unigine::String Settings::getWhiteBackground() const
 {
-	return _rootFolder + _texturesFolder + _whiteBackground;
+	return _rootFolder + _texturesFolder + _whiteTextureName;
 }
 
-int32_t Settings::addDefaultFont(const char* font)
+int32_t Settings::addDefaultFont(const Unigine::String& font)
 {
 	int32_t fontIndex = _defaultFonts.size();
 
@@ -31,7 +31,12 @@ int32_t Settings::addDefaultFont(const char* font)
 	return fontIndex;
 }
 
+void noMoPi::Settings::removeDefaultFont(int32_t fontIndex)
+{
+	_defaultFonts.remove(fontIndex);
+}
+
 Unigine::String Settings::getDefaultFont(int32_t fontIndex)
 {
-	return _rootFolder + _fontsFolder + _defaultFonts[fontIndex];
+	return getFontsPath(_defaultFonts[fontIndex]);
 }

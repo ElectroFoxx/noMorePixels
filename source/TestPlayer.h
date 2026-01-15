@@ -14,12 +14,28 @@ public:
 private:
 	Unigine::GuiPtr _gui;
 	Unigine::RenderTargetPtr _renderTarget;
-	Unigine::TexturePtr _texture;
+
 	Unigine::Vector<Unigine::Math::ivec2> _resolutionsToTest;
+	Unigine::Vector<Unigine::TexturePtr> _textures;
+	Unigine::Vector<Unigine::ImagePtr> _images;
+	Unigine::Vector<Unigine::AtomicBool> _isImageReady;
+	int32_t _currentResolutionIndex = -1;
 
 	void init();
 	void update();
 
+	void _assert(bool condition);
+
+	bool _isAllImagesReady();
+
 	void _renderGuiToTexture();
-	void _setGuiResolution(const Unigine::Math::ivec2& size);
+	void _setGuiResolution(int32_t index);
+
+	void _testSettings();
+	void _testUI();
+
+	void _testVBoxUnit();
+	void _testVBoxVisual();
+
+	void _testHBox();
 };

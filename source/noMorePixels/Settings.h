@@ -18,7 +18,8 @@ namespace noMoPi
 		Unigine::String getTexturesPath(const Unigine::String& texture) const;
 		Unigine::String getWhiteBackground() const;
 
-		int32_t addDefaultFont(const char* font);
+		int32_t addDefaultFont(const Unigine::String& font);
+		void removeDefaultFont(int32_t fontIndex);
 		Unigine::String getDefaultFont(int32_t fontIndex);
 	private:
 		Settings() = default;
@@ -29,6 +30,8 @@ namespace noMoPi
 
 		Unigine::Vector<Unigine::String> _defaultFonts;
 
-		const Unigine::String _whiteBackground = "white.png";
+		const Unigine::String _whiteTextureName = "white.png";
+
+		friend class TestPlayer;
 	};
 }

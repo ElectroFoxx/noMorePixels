@@ -27,5 +27,5 @@ noMoPi::CheckBox::CheckBox(const ScaleSettings& scaleSettings) : WidgetBase(scal
 		sprite->setLayerEnabled(1, !sprite->isLayerEnabled(1));
 		});
 
-	_widget = sprite;
+	_rootWidget = sprite;
 }

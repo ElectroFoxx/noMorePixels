@@ -6,26 +6,31 @@ using namespace noMoPi;
 
 noMoPi::Scroll::Scroll(const ScaleSettings& scaleSettings) : WidgetBase(scaleSettings)
 {
-	_widget = Unigine::WidgetVBox::create();
-	Unigine::dynamic_ptr_cast<Unigine::WidgetVBox>(_widget)->setBackgroundColor(Unigine::Math::vec4_blue);
-	Unigine::dynamic_ptr_cast<Unigine::WidgetVBox>(_widget)->setBackground(1);
+	_rootWidget = Unigine::WidgetVBox::create();
+	_rootWidget->setLifetime(Unigine::Widget::LIFETIME_MANUAL);
+	Unigine::dynamic_ptr_cast<Unigine::WidgetVBox>(_rootWidget)->setBackgroundColor(Unigine::Math::vec4_blue);
+	Unigine::dynamic_ptr_cast<Unigine::WidgetVBox>(_rootWidget)->setBackground(1);
 
 	_topSprite = Unigine::WidgetSprite::create();
+	_topSprite->setLifetime(Unigine::Widget::LIFETIME_MANUAL);
 	_topSprite->getEventClicked().connect(ec, this, &Scroll::_topOrLeftClicked);
 
 	static Unigine::EventConnections econn;
 
 	_bottomSprite = Unigine::WidgetSprite::create();
+	_bottomSprite->setLifetime(Unigine::Widget::LIFETIME_MANUAL);
 	_bottomSprite->getEventClicked().connect(ec, this, &Scroll::_leftOrBottomClicked);
 
 	_topTexture = Unigine::Texture::create();
 	_topTexture->load(Settings::get().getTexturesPath("topArrow.png"));
 
 	_sliderBox = Unigine::WidgetHBox::create();
+	_sliderBox->setLifetime(Unigine::Widget::LIFETIME_MANUAL);
 	_sliderBox->setBackground(true);
 	_sliderBox->setBackgroundTexture(Settings::get().getTexturesPath("sliderBackground.png"));
 
 	_coreSlider = Unigine::WidgetSlider::create();
+	_coreSlider->setLifetime(Unigine::Widget::LIFETIME_MANUAL);
 	_applySliderProperties(_coreSlider);
 	_sliderBox->addChild(_coreSlider);
 
@@ -33,6 +38,7 @@ noMoPi::Scroll::Scroll(const ScaleSettings& scaleSettings) : WidgetBase(scaleSet
 	_bottomTexture->load(Settings::get().getTexturesPath("bottomArrow.png"));
 
 	_sliderSprite = Unigine::WidgetSprite::create();
+	_sliderSprite->setLifetime(Unigine::Widget::LIFETIME_MANUAL);
 
 	_sliderTexture = Unigine::Texture::create();
 	_sliderTexture->load(Settings::get().getTexturesPath("bottomArrow.png"));
@@ -42,12 +48,12 @@ noMoPi::Scroll::Scroll(const ScaleSettings& scaleSettings) : WidgetBase(scaleSet
 	_bottomSprite->setRender(_bottomTexture);
 	_sliderSprite->setRender(_sliderTexture);
 
-	_widget->addChild(_topSprite);
+	_rootWidget->addChild(_topSprite);
 
-	_widget->addChild(_sliderSprite, Unigine::Gui::ALIGN_OVERLAP | Unigine::Gui::ALIGN_FIXED);
+	_rootWidget->addChild(_sliderSprite, Unigine::Gui::ALIGN_OVERLAP | Unigine::Gui::ALIGN_FIXED);
 
-	_widget->addChild(_sliderBox);
-	_widget->addChild(_bottomSprite);
+	_rootWidget->addChild(_sliderBox);
+	_rootWidget->addChild(_bottomSprite);
 }
 
 void Scroll::resize(int32_t width, int32_t height)
@@ -60,27 +66,31 @@ void Scroll::resize(int32_t width, int32_t height)
 
 	float aspectRatio = static_cast<float>(textureWidth) / textureHeight;
 
-	_topHeight = static_cast<int32_t>(_widget->getWidth() * aspectRatio);
+	_topHeight = static_cast<int32_t>(_rootWidget->getWidth() * aspectRatio);
 	availableHeight -= _topHeight;
 
-	_topSprite->setWidth(_widget->getWidth());
+	_topSprite->setWidth(_rootWidget->getWidth());
 	_topSprite->setHeight(_topHeight);
 
 	textureWidth = _bottomTexture->getWidth(), textureHeight = _bottomTexture->getHeight();
 
 	aspectRatio = static_cast<float>(textureWidth) / textureHeight;
 
-	_bottomHeight = static_cast<int32_t>(_widget->getWidth() * aspectRatio);
+	_bottomHeight = static_cast<int32_t>(_rootWidget->getWidth() * aspectRatio);
 	availableHeight -= _bottomHeight;
 
-	_bottomSprite->setWidth(_widget->getWidth());
+	_bottomSprite->setWidth(_rootWidget->getWidth());
 	_bottomSprite->setHeight(_bottomHeight);
 
-	_sliderSprite->setWidth(_widget->getWidth());
+	_sliderSprite->setWidth(_rootWidget->getWidth());
 	_sliderSprite->setHeight(_bottomHeight);
 
 	for (int32_t i = _sliderBox->getNumChildren() - 1; i >= 1; i--)
-		_sliderBox->removeChild(_sliderBox->getChild(i));
+	{
+		Unigine::WidgetPtr child = _sliderBox->getChild(i);
+		_sliderBox->removeChild(child);
+		child.deleteLater();
+	}
 
 	_coreSlider->setHeight(availableHeight);
 	_coreSlider->setButtonHeight(_bottomHeight);
@@ -97,7 +107,7 @@ void Scroll::resize(int32_t width, int32_t height)
 
 	_setSliderRange();
 
-	_sliderBox->setWidth(_widget->getWidth());
+	_sliderBox->setWidth(_rootWidget->getWidth());
 	_sliderBox->setHeight(availableHeight);
 
 	_sliderSize = _bottomHeight;
@@ -127,6 +137,15 @@ Scroll* noMoPi::Scroll::setIsReversed(bool isReversed)
 	_setSliderRange();
 
 	return this;
+}
+
+noMoPi::Scroll::~Scroll()
+{
+	_sliderBox.deleteLater();
+	_coreSlider.deleteLater();
+	_bottomSprite.deleteLater();
+	_topSprite.deleteLater();
+	_sliderSprite.deleteLater();
 }
 
 void noMoPi::Scroll::_sliderChanged(const Unigine::WidgetPtr& widget)
@@ -178,6 +197,7 @@ void noMoPi::Scroll::_leftOrBottomClicked(const Unigine::WidgetPtr& widget, int3
 
 void noMoPi::Scroll::_applySliderProperties(const Unigine::WidgetSliderPtr& slider)
 {
+	slider->setLifetime(Unigine::Widget::LIFETIME_MANUAL);
 	slider->setOrientation(0);
 	slider->setButtonHeight(100);
 	slider->getEventChanged().connect(ec, this, &Scroll::_sliderChanged);

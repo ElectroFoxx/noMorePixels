@@ -7,29 +7,30 @@ using namespace noMoPi;
 EditLine::EditLine(const ScaleSettings& scaleSettings) : WidgetBase(scaleSettings)
 {
 	Unigine::WidgetEditLinePtr _editLine = Unigine::WidgetEditLine::create("test");
-	_editLine->setStyleTextureBackground(".noMorePixels/textures/white.png");
+	_editLine->setLifetime(Unigine::Widget::LIFETIME_MANUAL);
+	_editLine->setStyleTextureBackground(Settings::get().getWhiteBackground());
 	_editLine->setBackgroundColor(Unigine::Math::vec4_green);
 	_editLine->setBorderColor(Unigine::Math::vec4_zero);
 
 	_editLine->getEventChanged().connect(ec, this, &EditLine::_onTextChanged);
 
-	_widget = _editLine;
+	_rootWidget = _editLine;
 }
 
 void EditLine::resize(int32_t width, int32_t height)
 {
 	// no way to remove the border, so this is a temporary fix
-	_widget->setWidth(width - 4);
-	_widget->setHeight(height - 4);
+	_rootWidget->setWidth(width - 4);
+	_rootWidget->setHeight(height - 4);
 
 	_calculateMaxFontSize();
 
-	_widget->setFontSize(_maxFontSize);
+	_rootWidget->setFontSize(_maxFontSize);
 }
 
 void noMoPi::EditLine::_calculateMaxFontSize()
 {
-	int32_t height = _widget->getHeight();
+	int32_t height = _rootWidget->getHeight();
 
 	_maxFontSize = static_cast<int32_t>((height - 5) * _magicMaxFontProportion + 2);
 }
@@ -73,7 +74,7 @@ void noMoPi::EditLine::_onTextChanged(const Unigine::WidgetPtr& widget)
 
 EditLine* EditLine::setDefaultFont(int32_t fontIndex)
 {
-	_widget->setFont(Settings::get().getDefaultFont(fontIndex));
+	_rootWidget->setFont(Settings::get().getDefaultFont(fontIndex));
 
 	return this;
 }

@@ -7,8 +7,8 @@ using namespace noMoPi;
 
 void noMoPi::WidgetContainerBase::addChild(const std::shared_ptr<WidgetBase>& widget)
 {
-	Unigine::GuiPtr gui = _widget->getGui();
-	widget->setGui(gui);
+	Unigine::GuiPtr gui = _rootWidget->getGui();
+	widget->_setGui(gui);
 
 	// Interactive vidgets support events like onClicked, onEnter, ect
 	if (Interactive* interactive = dynamic_cast<Interactive*>(widget.get()))
@@ -21,7 +21,7 @@ void noMoPi::WidgetContainerBase::addChild(const std::shared_ptr<WidgetBase>& wi
 	{
 		Unigine::WidgetVBoxPtr spacer = Unigine::WidgetVBox::create();
 		_spacers.push_back(spacer);
-		_containterWidget->addChild(spacer);
+		_rootWidget->addChild(spacer);
 	}
 
 	_childWidgets.push_back(widget);
@@ -46,16 +46,16 @@ void noMoPi::WidgetContainerBase::clear()
 	_childWidgets.clear();
 	_spacers.clear();
 
-	while (_widget->getNumChildren() > 0)
+	while (_rootWidget->getNumChildren() > 0)
 	{
-		Unigine::WidgetPtr widget = _widget->getChild(0);
-		_widget->removeChild(widget);
+		Unigine::WidgetPtr widget = _rootWidget->getChild(0);
+		_rootWidget->removeChild(widget);
 	}
 }
 
 WidgetContainerBase* WidgetContainerBase::setBackgroundEnabled(bool hasBackground)
 {
-	if (Unigine::WidgetVBoxPtr box = Unigine::dynamic_ptr_cast<Unigine::WidgetVBox>(_widget))
+	if (Unigine::WidgetVBoxPtr box = Unigine::dynamic_ptr_cast<Unigine::WidgetVBox>(_rootWidget))
 		box->setBackground(hasBackground);
 
 	return this;
@@ -63,7 +63,7 @@ WidgetContainerBase* WidgetContainerBase::setBackgroundEnabled(bool hasBackgroun
 
 WidgetContainerBase* WidgetContainerBase::setBackgroundColor(float r, float g, float b, float a)
 {
-	if (Unigine::WidgetVBoxPtr box = Unigine::dynamic_ptr_cast<Unigine::WidgetVBox>(_widget))
+	if (Unigine::WidgetVBoxPtr box = Unigine::dynamic_ptr_cast<Unigine::WidgetVBox>(_rootWidget))
 		box->setBackgroundColor(Unigine::Math::vec4(r, b, g, a));
 
 	return this;
@@ -71,7 +71,7 @@ WidgetContainerBase* WidgetContainerBase::setBackgroundColor(float r, float g, f
 
 WidgetContainerBase* noMoPi::WidgetContainerBase::setBackgroundColor(const Unigine::Math::vec4& color)
 {
-	if (Unigine::WidgetVBoxPtr box = Unigine::dynamic_ptr_cast<Unigine::WidgetVBox>(_widget))
+	if (Unigine::WidgetVBoxPtr box = Unigine::dynamic_ptr_cast<Unigine::WidgetVBox>(_rootWidget))
 		box->setBackgroundColor(color);
 
 	return this;
@@ -84,7 +84,7 @@ WidgetContainerBase* WidgetContainerBase::setBackgroundColor(int32_t r, int32_t 
 
 WidgetContainerBase* noMoPi::WidgetContainerBase::setBackgroundTexture(const Unigine::String& texture)
 {
-	if (Unigine::WidgetVBoxPtr vbox = Unigine::static_ptr_cast<Unigine::WidgetVBox>(_widget))
+	if (Unigine::WidgetVBoxPtr vbox = Unigine::static_ptr_cast<Unigine::WidgetVBox>(_rootWidget))
 	{
 		vbox->setBackgroundTexture(Settings::get().getTexturesPath(texture));
 	}
@@ -94,7 +94,7 @@ WidgetContainerBase* noMoPi::WidgetContainerBase::setBackgroundTexture(const Uni
 
 WidgetContainerBase* noMoPi::WidgetContainerBase::setBackgroundTextureFiltering(int32_t filtering)
 {
-	if (Unigine::WidgetVBoxPtr vbox = Unigine::static_ptr_cast<Unigine::WidgetVBox>(_widget))
+	if (Unigine::WidgetVBoxPtr vbox = Unigine::static_ptr_cast<Unigine::WidgetVBox>(_rootWidget))
 	{
 		vbox->setBackgroundCustomFilterEnabled(true);
 		vbox->setBackgroundCustomFilter(filtering);
@@ -133,7 +133,7 @@ void noMoPi::WidgetContainerBase::_resizeChildren()
 	int32_t parentWidth = getInnerWidth();
 	int32_t parentHeight = getInnerHeight();
 
-	bool isHorizontal = _widget->getType() == Unigine::Widget::TYPE::WIDGET_HBOX;
+	bool isHorizontal = _rootWidget->getType() == Unigine::Widget::TYPE::WIDGET_HBOX;
 
 	if (isHorizontal)
 	{
@@ -223,7 +223,7 @@ void noMoPi::WidgetContainerBase::_calculatePadding()
 	_paddingInPixels[std::to_underlying(PaddingIndex::Top)] = static_cast<int32_t>(height * _padding[std::to_underlying(PaddingIndex::Top)]);
 	_paddingInPixels[std::to_underlying(PaddingIndex::Bottom)] = static_cast<int32_t>(height * _padding[std::to_underlying(PaddingIndex::Bottom)]);
 
-	if (Unigine::WidgetVBoxPtr box = Unigine::static_ptr_cast<Unigine::WidgetVBox>(_widget))
+	if (Unigine::WidgetVBoxPtr box = Unigine::static_ptr_cast<Unigine::WidgetVBox>(_rootWidget))
 	{
 		if (_isPaddingEqual)
 		{
@@ -244,7 +244,7 @@ void noMoPi::WidgetContainerBase::_calculateSpacing()
 	const int32_t width = _ignorePadding ? getWidth() : getInnerWidth();
 	const int32_t height = _ignorePadding ? getHeight() : getInnerHeight();
 
-	if (_widget->getType() == Unigine::Widget::TYPE::WIDGET_HBOX)
+	if (_rootWidget->getType() == Unigine::Widget::TYPE::WIDGET_HBOX)
 	{
 		_scaledSpacing = static_cast<int32_t>(width * _spacing);
 		for (auto& spacer : _spacers)
@@ -254,7 +254,7 @@ void noMoPi::WidgetContainerBase::_calculateSpacing()
 		}
 
 	}
-	else if (_widget->getType() == Unigine::Widget::TYPE::WIDGET_VBOX || _widget->getType() == Unigine::Widget::TYPE::WIDGET_SCROLL_BOX)
+	else if (_rootWidget->getType() == Unigine::Widget::TYPE::WIDGET_VBOX || _rootWidget->getType() == Unigine::Widget::TYPE::WIDGET_SCROLL_BOX)
 	{
 		_scaledSpacing = static_cast<int32_t>(height * _spacing);
 		for (auto& spacer : _spacers)

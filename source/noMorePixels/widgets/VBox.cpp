@@ -6,13 +6,13 @@ using namespace noMoPi;
 
 VBox::VBox(const ScaleSettings& scaleSettings) : WidgetContainerBase(scaleSettings)
 {
-	_widget = Unigine::WidgetVBox::create();
-	_containterWidget = _widget;
+	_rootWidget = Unigine::WidgetVBox::create();
+	_rootWidget->setLifetime(Unigine::Widget::LIFETIME_MANUAL);
+	_containterWidget = _rootWidget;
 
-	if (Unigine::WidgetVBoxPtr vbox = Unigine::static_ptr_cast<Unigine::WidgetVBox>(_widget))
+	if (Unigine::WidgetVBoxPtr vbox = Unigine::static_ptr_cast<Unigine::WidgetVBox>(_rootWidget))
 	{
 		vbox->setBackgroundTexture(Settings::get().getWhiteBackground());
-		vbox->setStencil(true);
 	}
 
 }

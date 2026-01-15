@@ -11,5 +11,7 @@ namespace noMoPi
 
 		static std::shared_ptr<VBox> create() { return std::make_shared<VBox>(ScaleSettings()); }
 		static std::shared_ptr<VBox> create(const ScaleSettings& scaleSettings) { return std::make_shared<VBox>(scaleSettings); }
+
+		friend class TestPlayer;
 	};
 }

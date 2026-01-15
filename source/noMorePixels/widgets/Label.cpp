@@ -6,16 +6,18 @@ using namespace noMoPi;
 
 Label::Label(const ScaleSettings& scaleSettings) : WidgetBase(scaleSettings)
 {
-	_widget = Unigine::WidgetHBox::create();
+	_rootWidget = Unigine::WidgetHBox::create();
+	_rootWidget->setLifetime(Unigine::Widget::LIFETIME_MANUAL);
 	_label = Unigine::WidgetLabel::create();
-	_widget->addChild(_label);
+	_label->setLifetime(Unigine::Widget::LIFETIME_MANUAL);
+	_rootWidget->addChild(_label);
 }
 
 Label* Label::setText(const char* text, bool isTranslatable)
 {
 	if (isTranslatable)
 	{
-		Unigine::GuiPtr gui = _widget->getGui();
+		Unigine::GuiPtr gui = _rootWidget->getGui();
 		_keyText = text;
 		_targetText = gui->translate(text);
 	}
@@ -114,7 +116,7 @@ Label* noMoPi::Label::setDefaultFont(int32_t fontIndex)
 
 	_calculateMaxFontParams();
 
-	_updateFont(_widget->getWidth());
+	_updateFont(_rootWidget->getWidth());
 
 	return this;
 }
@@ -178,8 +180,8 @@ void noMoPi::Label::_updateFont(int32_t width)
 
 void noMoPi::Label::_calculateMaxFontParams()
 {
-	const int32_t height = _widget->getHeight();
-	const int32_t width = _widget->getWidth();
+	const int32_t height = _rootWidget->getHeight();
+	const int32_t width = _rootWidget->getWidth();
 
 	if (!_fontWrap)
 	{
@@ -215,14 +217,19 @@ void noMoPi::Label::_calculateMaxFontParams()
 	_maxfontVSpacing = static_cast<int32_t>(_maxFontSize * _fontMaxVSpacing);
 }
 
+noMoPi::Label::~Label()
+{
+	_label.deleteLater();
+}
+
 void Label::translate()
 {
-	Unigine::GuiPtr gui = _widget->getGui();
+	Unigine::GuiPtr gui = _rootWidget->getGui();
 
 	setText(gui->translate(_keyText));
 
 
 	_calculateMaxFontParams();
 
-	_updateFont(_widget->getWidth());
+	_updateFont(_rootWidget->getWidth());
 }
