@@ -5,7 +5,7 @@
 
 using namespace noMoPi;
 
-void noMoPi::WidgetContainerBase::addChild(const std::shared_ptr<WidgetBase>& widget)
+void WidgetContainerBase::addChild(const std::shared_ptr<WidgetBase>& widget)
 {
 	Unigine::GuiPtr gui = _rootWidget->getGui();
 	widget->_setGui(gui);
@@ -20,6 +20,7 @@ void noMoPi::WidgetContainerBase::addChild(const std::shared_ptr<WidgetBase>& wi
 	if (_childWidgets.size() >= 1)
 	{
 		Unigine::WidgetVBoxPtr spacer = Unigine::WidgetVBox::create();
+		spacer->setLifetime(Unigine::Widget::LIFETIME::LIFETIME_MANUAL);
 		_spacers.push_back(spacer);
 		_rootWidget->addChild(spacer);
 	}
@@ -30,14 +31,14 @@ void noMoPi::WidgetContainerBase::addChild(const std::shared_ptr<WidgetBase>& wi
 		_containterWidget->addChild(widget->getWidget());
 }
 
-const std::shared_ptr<WidgetBase>& noMoPi::WidgetContainerBase::getChild(int32_t index) const
+const std::shared_ptr<WidgetBase>& WidgetContainerBase::getChild(int32_t index) const
 {
 	return _childWidgets.at(index);
 }
 
-void noMoPi::WidgetContainerBase::clear()
+void WidgetContainerBase::clear()
 {
-	for (auto& child : _childWidgets)
+	for (std::shared_ptr<WidgetBase>& child : _childWidgets)
 	{
 		if (WidgetContainerBase* widget = dynamic_cast<WidgetContainerBase*>(child.get()))
 			widget->clear();
@@ -69,7 +70,7 @@ WidgetContainerBase* WidgetContainerBase::setBackgroundColor(float r, float g, f
 	return this;
 }
 
-WidgetContainerBase* noMoPi::WidgetContainerBase::setBackgroundColor(const Unigine::Math::vec4& color)
+WidgetContainerBase* WidgetContainerBase::setBackgroundColor(const Unigine::Math::vec4& color)
 {
 	if (Unigine::WidgetVBoxPtr box = Unigine::dynamic_ptr_cast<Unigine::WidgetVBox>(_rootWidget))
 		box->setBackgroundColor(color);
@@ -82,7 +83,7 @@ WidgetContainerBase* WidgetContainerBase::setBackgroundColor(int32_t r, int32_t 
 	return setBackgroundColor(static_cast<float>(r) / 255, static_cast<float>(g) / 255, static_cast<float>(b) / 255, static_cast<float>(a) / 255);
 }
 
-WidgetContainerBase* noMoPi::WidgetContainerBase::setBackgroundTexture(const Unigine::String& texture)
+WidgetContainerBase* WidgetContainerBase::setBackgroundTexture(const Unigine::String& texture)
 {
 	if (Unigine::WidgetVBoxPtr vbox = Unigine::static_ptr_cast<Unigine::WidgetVBox>(_rootWidget))
 	{
@@ -92,7 +93,7 @@ WidgetContainerBase* noMoPi::WidgetContainerBase::setBackgroundTexture(const Uni
 	return this;
 }
 
-WidgetContainerBase* noMoPi::WidgetContainerBase::setBackgroundTextureFiltering(int32_t filtering)
+WidgetContainerBase* WidgetContainerBase::setBackgroundTextureFiltering(int32_t filtering)
 {
 	if (Unigine::WidgetVBoxPtr vbox = Unigine::static_ptr_cast<Unigine::WidgetVBox>(_rootWidget))
 	{
@@ -113,7 +114,7 @@ void WidgetContainerBase::resize(int32_t width, int32_t height)
 	_resizeChildren();
 }
 
-void noMoPi::WidgetContainerBase::_resizeChildren()
+void WidgetContainerBase::_resizeChildren()
 {
 	float totalWidgetsWeight = 0.f;
 	int32_t fillWidgetsCount = 0;
@@ -180,14 +181,14 @@ void noMoPi::WidgetContainerBase::_resizeChildren()
 	}
 }
 
-int32_t noMoPi::WidgetContainerBase::getInnerHeight() const
+int32_t WidgetContainerBase::getInnerHeight() const
 {
 	int32_t verticalPadding = _isPaddingEqual ? _paddingInPixels.min() * 2 : _paddingInPixels[std::to_underlying(PaddingIndex::Top)] + _paddingInPixels[std::to_underlying(PaddingIndex::Bottom)];
 
 	return getHeight() - verticalPadding;
 }
 
-int32_t noMoPi::WidgetContainerBase::getInnerWidth() const
+int32_t WidgetContainerBase::getInnerWidth() const
 {
 	int32_t horizontalPadding = _isPaddingEqual ? _paddingInPixels.min() * 2 : _paddingInPixels[std::to_underlying(PaddingIndex::Left)] + _paddingInPixels[std::to_underlying(PaddingIndex::Right)];
 
@@ -200,7 +201,7 @@ WidgetContainerBase* WidgetContainerBase::setPadding(float top, float bottom, fl
 	return this;
 }
 
-WidgetContainerBase* noMoPi::WidgetContainerBase::setPaddingEqual(bool isPaddingEqual)
+WidgetContainerBase* WidgetContainerBase::setPaddingEqual(bool isPaddingEqual)
 {
 	_isPaddingEqual = isPaddingEqual;
 	return this;
@@ -213,7 +214,7 @@ WidgetContainerBase* WidgetContainerBase::setSpacing(float spacing, bool ignoreP
 	return this;
 }
 
-void noMoPi::WidgetContainerBase::_calculatePadding()
+void WidgetContainerBase::_calculatePadding()
 {
 	const int32_t width = getWidth();
 	const int32_t height = getHeight();
@@ -239,7 +240,7 @@ void noMoPi::WidgetContainerBase::_calculatePadding()
 	}
 }
 
-void noMoPi::WidgetContainerBase::_calculateSpacing()
+void WidgetContainerBase::_calculateSpacing()
 {
 	const int32_t width = _ignorePadding ? getWidth() : getInnerWidth();
 	const int32_t height = _ignorePadding ? getHeight() : getInnerHeight();

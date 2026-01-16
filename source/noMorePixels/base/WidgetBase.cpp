@@ -15,7 +15,7 @@ void WidgetBase::resize(int32_t width, int32_t height)
 		interactive->resize(width, height);
 }
 
-void noMoPi::WidgetBase::setIsEnabled(bool isEnabled)
+void WidgetBase::setIsEnabled(bool isEnabled)
 {
 	_isEnabled = isEnabled;
 	
@@ -25,18 +25,18 @@ void noMoPi::WidgetBase::setIsEnabled(bool isEnabled)
 		interactive->_setIsEnabled(isEnabled);
 }
 
-void noMoPi::WidgetBase::updateLayout()
+void WidgetBase::updateLayout()
 {
 	resize(_size.x, _size.y);
 }
 
-void noMoPi::WidgetBase::_setGui(const Unigine::GuiPtr& gui)
+void WidgetBase::_setGui(const Unigine::GuiPtr& gui)
 {
 	_gui = gui;
 	_rootWidget->setGui(_gui);
 }
 
-noMoPi::WidgetBase::~WidgetBase()
+WidgetBase::~WidgetBase()
 {
 	_rootWidget.deleteLater();
 }

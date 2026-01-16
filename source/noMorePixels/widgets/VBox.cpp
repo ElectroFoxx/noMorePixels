@@ -14,5 +14,4 @@ VBox::VBox(const ScaleSettings& scaleSettings) : WidgetContainerBase(scaleSettin
 	{
 		vbox->setBackgroundTexture(Settings::get().getWhiteBackground());
 	}
-
 }

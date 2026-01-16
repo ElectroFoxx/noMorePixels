@@ -63,9 +63,12 @@ void TestPlayer::update()
 	_testVBoxVisual();
 }
 
-void TestPlayer::_assert(bool condition)
+void TestPlayer::_assert(bool condition, const char* message)
 {
-	
+	if (condition)
+		Unigine::Log::message("%s: PASSED", message);
+	else 
+		Unigine::Log::error("%s: FAILED", message);
 }
 
 bool TestPlayer::_isAllImagesReady()
@@ -285,30 +288,68 @@ void TestPlayer::_testUI()
 
 void TestPlayer::_testVBoxUnit()
 {
-	UI testUI;
+	bool (TestPlayer::*tests[])() = {
+		&TestPlayer::_testVBoxUnit_test1createDelete,
+		&TestPlayer::_testVBoxUnit_test2resize
+	};
 
-	_gui = Unigine::Gui::create();
-	testUI.setGui(_gui);
+	const char* testsName[] = {
+		"VBox Unit Test 1 - Create/Delete",
+		"VBox Unit Test 2 - Resize"
+	};
 
-	// TEST 1
-	// test creatuion
+	for (int32_t i = 0; i < 1; i++)
+	{
+		_assert((this->*tests[i])(), testsName[i]);
+	}
+}
 
+bool TestPlayer::_testVBoxUnit_test1createDelete()
+{
 	auto rootVBox = VBox::create();
 
 	Unigine::WidgetVBoxPtr rootWidget = Unigine::dynamic_ptr_cast<Unigine::WidgetVBox>(rootVBox->getWidget());
 
-	assert(rootWidget->getWidth() == 0);
-	assert(rootWidget->getHeight() == 0);
-	assert(rootWidget->getLifetime() == Unigine::Widget::LIFETIME_MANUAL);
-	assert(rootWidget.isDeleted() == false);
-
-	// TEST 2
-	// test destructor
+	bool isZeroSize = rootVBox->getSize() == Unigine::Math::ivec2(0, 0) && rootWidget->getWidth() == 0 && rootWidget->getHeight() == 0;
+	bool isManualLifetime = rootWidget->getLifetime() == Unigine::Widget::LIFETIME_MANUAL;
+	bool isNotDeleted = rootWidget.isDeleted() == false;
 
 	rootVBox = nullptr;
-	assert(rootWidget.isDeleted() == true);
+	
+	bool isDeleted = rootWidget.isDeleted() == true;
 
-	// 
+	return isZeroSize && isManualLifetime && isNotDeleted && isDeleted;
+}
+
+bool TestPlayer::_testVBoxUnit_test2resize()
+{
+	_gui = Unigine::Gui::create();
+
+	UI testUI(_gui);
+
+	auto rootVBox = VBox::create();
+
+	testUI.setRootWidget(rootVBox);
+
+	Unigine::WidgetVBoxPtr rootWidget = Unigine::dynamic_ptr_cast<Unigine::WidgetVBox>(rootVBox->getWidget());
+
+	std::shared_ptr<WidgetBase> childWidgets[] = {
+		VBox::create(),
+		VBox::create(),
+		VBox::create(),
+		VBox::create(),
+		VBox::create(),
+	};
+
+	ScaleSettings scaleSettings[] = {
+		{ ScaleType::Proportional, 0.2f },
+		{ ScaleType::Proportional, 0.1f },
+		{ ScaleType::Fill, 1.f },
+		{ ScaleType::Fill, 2.f },
+		{ ScaleType::Fill, 4.f },
+	};
+
+	return false;
 }
 
 void TestPlayer::_testVBoxVisual()

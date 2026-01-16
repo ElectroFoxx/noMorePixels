@@ -24,7 +24,7 @@ private:
 	void init();
 	void update();
 
-	void _assert(bool condition);
+	void _assert(bool condition, const char* message);
 
 	bool _isAllImagesReady();
 
@@ -34,8 +34,16 @@ private:
 	void _testSettings();
 	void _testUI();
 
+	////////////////
+	// VBOX TESTS //
+	////////////////
+
 	void _testVBoxUnit();
+	bool _testVBoxUnit_test1createDelete();
+	bool _testVBoxUnit_test2resize();
+
 	void _testVBoxVisual();
+
 
 	void _testHBox();
 };
