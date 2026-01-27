@@ -63,12 +63,12 @@ void TestPlayer::update()
 	_testVBoxVisual();
 }
 
-void TestPlayer::_assert(bool condition, const char* message)
+void TestPlayer::_assert(bool condition, const Unigine::String& message)
 {
 	if (condition)
-		Unigine::Log::message("%s: PASSED", message);
+		Unigine::Log::message("%s: PASSED\n", message.get());
 	else 
-		Unigine::Log::error("%s: FAILED", message);
+		Unigine::Log::error("%s: FAILED\n", message.get());
 }
 
 bool TestPlayer::_isAllImagesReady()
@@ -264,8 +264,8 @@ void TestPlayer::_testUI()
 	
 	testUI.setRootWidget(testHBox);
 	testUI.setSize(Unigine::Math::ivec2(800, 600));
-	assert(testHBox->getWidget()->getWidth() == 800);
-	assert(testHBox->getWidget()->getHeight() == 600);
+	assert(testUI._gui->getWidth() == 800);
+	assert(testUI._gui->getHeight() == 600);
 
 
 	// TEST 4
@@ -288,24 +288,29 @@ void TestPlayer::_testUI()
 
 void TestPlayer::_testVBoxUnit()
 {
-	bool (TestPlayer::*tests[])() = {
+	Unigine::String outFunctionName;
+	
+	bool (TestPlayer::*tests[])(Unigine::String&) = {
 		&TestPlayer::_testVBoxUnit_test1createDelete,
-		&TestPlayer::_testVBoxUnit_test2resize
+		&TestPlayer::_testVBoxUnit_test2resize,
+		&TestPlayer::_testVBoxUnit_test3addChild,
+		&TestPlayer::_testVBoxUnit_test4removeChild,
+		&TestPlayer::_testVBoxUnit_test5getChild,
+		&TestPlayer::_testVBoxUnit_test6clear
 	};
 
-	const char* testsName[] = {
-		"VBox Unit Test 1 - Create/Delete",
-		"VBox Unit Test 2 - Resize"
-	};
+	const int32_t numTests = sizeof(tests) / sizeof(tests[0]);
 
-	for (int32_t i = 0; i < 1; i++)
+	for (int32_t i = 0; i < numTests; i++)
 	{
-		_assert((this->*tests[i])(), testsName[i]);
+		_assert((this->*tests[i])(outFunctionName), outFunctionName);
 	}
 }
 
-bool TestPlayer::_testVBoxUnit_test1createDelete()
+bool TestPlayer::_testVBoxUnit_test1createDelete(Unigine::String& outFunctionName)
 {
+	outFunctionName = __FUNCTION__;
+	
 	auto rootVBox = VBox::create();
 
 	Unigine::WidgetVBoxPtr rootWidget = Unigine::dynamic_ptr_cast<Unigine::WidgetVBox>(rootVBox->getWidget());
@@ -321,17 +326,17 @@ bool TestPlayer::_testVBoxUnit_test1createDelete()
 	return isZeroSize && isManualLifetime && isNotDeleted && isDeleted;
 }
 
-bool TestPlayer::_testVBoxUnit_test2resize()
+#define VBOXTESTBEGIN				\
+outFunctionName = __FUNCTION__;		\
+_gui = Unigine::Gui::create();		\
+UI testUI(_gui);					\
+auto rootVBox = VBox::create();		\
+testUI.setRootWidget(rootVBox);		\
+Unigine::WidgetVBoxPtr rootWidget = Unigine::dynamic_ptr_cast<Unigine::WidgetVBox>(rootVBox->getWidget());
+
+bool TestPlayer::_testVBoxUnit_test2resize(Unigine::String& outFunctionName)
 {
-	_gui = Unigine::Gui::create();
-
-	UI testUI(_gui);
-
-	auto rootVBox = VBox::create();
-
-	testUI.setRootWidget(rootVBox);
-
-	Unigine::WidgetVBoxPtr rootWidget = Unigine::dynamic_ptr_cast<Unigine::WidgetVBox>(rootVBox->getWidget());
+	VBOXTESTBEGIN;
 
 	std::shared_ptr<WidgetBase> childWidgets[] = {
 		VBox::create(),
@@ -341,14 +346,297 @@ bool TestPlayer::_testVBoxUnit_test2resize()
 		VBox::create(),
 	};
 
-	ScaleSettings scaleSettings[] = {
+	for (auto& child : childWidgets)
+	{
+		rootVBox->addChild(child);
+	}
+
+	ScaleSettings scaleSettings[][5] = {
+		{
+		{ ScaleType::Proportional, 1.f / 6.f },
+		{ ScaleType::Proportional, 1.f / 6.f },
+		{ ScaleType::Proportional, 1.f / 6.f },
+		{ ScaleType::Proportional, 1.f / 4.f },
+		{ ScaleType::Proportional, 1.f / 4.f }
+		},
+
+		{
+		{ ScaleType::Proportional, 0.1f },
+		{ ScaleType::Proportional, 0.05f },
 		{ ScaleType::Proportional, 0.2f },
 		{ ScaleType::Proportional, 0.1f },
+		{ ScaleType::Proportional, 0.15f }
+		},
+
+		{
+		{ ScaleType::Fill, 1.f },
+		{ ScaleType::Fill, 5.f },
+		{ ScaleType::Fill, 2.f },
+		{ ScaleType::Fill, .5f },
+		{ ScaleType::Fill, 4.f }
+		},
+
+		{
+		{ ScaleType::Proportional, 0.2f },
 		{ ScaleType::Fill, 1.f },
 		{ ScaleType::Fill, 2.f },
 		{ ScaleType::Fill, 4.f },
+		{ ScaleType::Proportional, 0.1f }
+		},
+
+		{
+		{ ScaleType::Fill, 4.f },
+		{ ScaleType::Proportional, 0.2f },
+		{ ScaleType::Fill, 1.f },
+		{ ScaleType::Proportional, 0.1f },
+		{ ScaleType::Fill, 2.f }
+		},
+
+		{
+		{ ScaleType::Fill, 2.f },
+		{ ScaleType::Proportional, 0.2f },
+		{ ScaleType::Fill, 4.f },
+		{ ScaleType::Fill, 1.f },
+		{ ScaleType::Proportional, 0.1f }
+		},
+
+		{
+		{ ScaleType::Proportional, 0.2f },
+		{ ScaleType::Fill, 4.f },
+		{ ScaleType::Proportional, 0.1f },
+		{ ScaleType::Fill, 1.f },
+		{ ScaleType::Fill, 2.f }
+		},
+
+		{
+		{ ScaleType::Ratio, 1.f / 3.f },
+		{ ScaleType::Fill, 4.f },
+		{ ScaleType::Proportional, 0.1f },
+		{ ScaleType::Fill, 1.f },
+		{ ScaleType::Fill, 2.f }
+		}
 	};
 
+	int32_t numTests = sizeof(scaleSettings) / sizeof(scaleSettings[0]);
+
+	for (const Unigine::Math::ivec2& resolution : _resolutionsToTest)
+	{
+		//Unigine::Log::message("Testing resolution: %dx%d\n", resolution.x, resolution.y);
+		
+		for (int32_t testIndex = 0; testIndex < numTests; testIndex++)
+		{
+			//Unigine::Log::message("  Test case %d\n", testIndex + 1);
+			
+			for (int32_t i = 0; i < 5; i++)
+				childWidgets[i]->setScaleSettings(scaleSettings[testIndex][i]);
+
+			testUI.setSize(resolution);
+			testUI.updateLayout();
+
+			float totalFillWeight = 0.f;
+			float totalProportionalWeight = 0.f;
+
+			for (int32_t i = 0; i < 5; i++)
+			{
+				const ScaleSettings& settings = childWidgets[i]->getScaleSettings();
+				
+				if (settings.scaleType == ScaleType::Fill)
+					totalFillWeight += settings.scaleFactor;
+				else if (settings.scaleType == ScaleType::Proportional)
+					totalProportionalWeight += settings.scaleFactor;
+			}
+
+			//Unigine::Log::message("    Total Fill weight: %f, Total Proportional weight: %f\n", totalFillWeight, totalProportionalWeight);
+
+			const int32_t maxSize = resolution.y;
+			const int32_t opposizeSize = resolution.x;
+			const int32_t expectedProportionalSize = static_cast<int32_t>(totalProportionalWeight * maxSize);
+			int32_t usedSize = 0;
+
+			float remainderWeight = 0.f;
+
+			for (int32_t i = 0; i < 5; i++)
+			{
+				const ScaleSettings& settings = childWidgets[i]->getScaleSettings();
+
+				if (settings.scaleType == ScaleType::Proportional)
+				{
+					float trueExpectedSize = maxSize * settings.scaleFactor;
+					remainderWeight += trueExpectedSize - static_cast<int32_t>(trueExpectedSize);
+
+					int32_t correction = 0;
+
+					if (remainderWeight >= 0.99975f)
+					{
+						correction = 1;
+						remainderWeight -= 0.99975f;
+					}
+					
+					const int32_t expectedSize = static_cast<int32_t>(trueExpectedSize + correction);
+
+					//Unigine::Log::message("Remainder weight: %f\n", remainderWeight);
+
+					const int32_t actualSizeMethod = childWidgets[i]->getHeight();
+					const int32_t actualSizeWidget = Unigine::dynamic_ptr_cast<Unigine::WidgetVBox>(childWidgets[i]->getWidget())->getHeight();
+
+					//Unigine::Log::message("Expected size: %d, Actual size (method): %d, Actual size (widget): %d\n", expectedSize, actualSizeMethod, actualSizeWidget);
+
+					bool sizesMatch = (expectedSize == actualSizeMethod) && (expectedSize == actualSizeWidget);
+
+					if (!sizesMatch)
+						return false;
+
+					usedSize += actualSizeMethod;
+				}
+			}
+
+			if (usedSize != expectedProportionalSize)
+				return false;
+
+			remainderWeight = 0.f;
+
+			for (int32_t i = 0; i < 5; i++)
+			{
+				const ScaleSettings& settings = childWidgets[i]->getScaleSettings();
+
+				if (settings.scaleType == ScaleType::Ratio)
+				{
+					float trueExpectedSize = opposizeSize * settings.scaleFactor;
+
+					remainderWeight += trueExpectedSize - static_cast<int32_t>(trueExpectedSize);
+
+					int32_t correction = 0;
+					if (remainderWeight >= 0.99975f)
+					{
+						correction = 1;
+						remainderWeight -= 0.99975f;
+					}
+
+					const int32_t expectedSize = static_cast<int32_t>(trueExpectedSize + correction);
+					//Unigine::Log::message("Remainder weight: %f\n", remainderWeight);
+					const int32_t actualSizeMethod = childWidgets[i]->getHeight();
+					const int32_t actualSizeWidget = Unigine::dynamic_ptr_cast<Unigine::WidgetVBox>(childWidgets[i]->getWidget())->getHeight();
+					//Unigine::Log::message("Expected size: %d, Actual size (method): %d, Actual size (widget): %d\n", expectedSize, actualSizeMethod, actualSizeWidget);
+					bool sizesMatch = (expectedSize == actualSizeMethod) && (expectedSize == actualSizeWidget);
+					if (!sizesMatch)
+						return false;
+					usedSize += actualSizeMethod;
+				}
+			}
+
+			const int32_t remainingSize = maxSize - usedSize;
+			remainderWeight = 0.f;
+
+			for (int32_t i = 0; i < 5; i++)
+			{
+				const ScaleSettings& settings = childWidgets[i]->getScaleSettings();
+
+				if (settings.scaleType == ScaleType::Fill)
+				{
+					float trueExpectedSize = remainingSize * (settings.scaleFactor / totalFillWeight);
+					remainderWeight += trueExpectedSize - static_cast<int32_t>(trueExpectedSize);
+
+					//Unigine::Log::message("Remainder weight: %f\n", remainderWeight);
+
+					int32_t additionalPixel = 0;
+					if (remainderWeight >= 0.9995f)
+					{
+						additionalPixel = 1;
+						remainderWeight -= 1.f;
+					}
+					
+					const int32_t expectedSize = static_cast<int32_t>(trueExpectedSize) + additionalPixel;
+
+					const int32_t actualSizeMethod = childWidgets[i]->getHeight();
+					const int32_t actualSizeWidget = Unigine::dynamic_ptr_cast<Unigine::WidgetVBox>(childWidgets[i]->getWidget())->getHeight();
+
+					//Unigine::Log::message("Expected size: %d, Actual size (method): %d, Actual size (widget): %d\n", expectedSize, actualSizeMethod, actualSizeWidget);
+
+					bool sizesMatch = (expectedSize == actualSizeMethod) && (expectedSize == actualSizeWidget);
+
+					if (!sizesMatch)
+						return false;
+
+					usedSize += expectedSize;
+				}
+			}
+
+			//Unigine::Log::message("    Used size: %d, Max size: %d\n", usedSize, maxSize);
+
+			if (usedSize != maxSize && totalProportionalWeight >= 0.9995f)
+				return false;
+		}
+	}
+
+	return true;
+}
+
+bool TestPlayer::_testVBoxUnit_test3addChild(Unigine::String& outFunctionName)
+{
+	VBOXTESTBEGIN;
+
+	auto firstChild = VBox::create();
+	auto secondChild = VBox::create();
+	auto thirdChild = VBox::create();
+
+	const Unigine::WidgetPtr firstChildWidget = firstChild->getWidget();
+	const Unigine::WidgetPtr secondChildWidget = secondChild->getWidget();
+	const Unigine::WidgetPtr thirdChildWidget = thirdChild->getWidget();
+
+	rootVBox->addChild(firstChild);
+
+	bool isFirstGuiSet = firstChildWidget->getGui() == _gui;
+	bool isChildWidgetSizeOne = rootVBox->_childWidgets.size() == 1 && rootWidget->getNumChildren() == 1;
+	bool isSpacersSizeZero = rootVBox->_spacers.size() == 0;
+
+	if (!isFirstGuiSet || !isChildWidgetSizeOne || !isSpacersSizeZero)
+		return false;
+
+	rootVBox->addChild(secondChild);
+
+	bool isSecondGuiSet = secondChildWidget->getGui() == _gui;
+	bool isChildWidgetSizeThree = rootVBox->_childWidgets.size() == 2 && rootWidget->getNumChildren() == 3;
+	bool isSpacersSizeOne = rootVBox->_spacers.size() == 1;
+
+	if (!isSecondGuiSet || !isChildWidgetSizeThree || !isSpacersSizeOne)
+		return false;
+
+	rootVBox->addChild(thirdChild);
+
+	bool isThirdGuiSet = thirdChildWidget->getGui() == _gui;
+	bool isChildWidgetSizeFive = rootVBox->_childWidgets.size() == 3 && rootWidget->getNumChildren() == 5;
+	bool isSpacersSizeTwo = rootVBox->_spacers.size() == 2;
+
+	if (!isThirdGuiSet || !isChildWidgetSizeFive || !isSpacersSizeTwo)
+		return false;
+
+	bool isSpacerLifetimeManual = rootVBox->_spacers[0]->getLifetime() == Unigine::Widget::LIFETIME_MANUAL &&
+		rootVBox->_spacers[1]->getLifetime() == Unigine::Widget::LIFETIME_MANUAL;
+
+	if (!isSpacerLifetimeManual)
+		return false;
+	
+	return true;
+}
+
+bool TestPlayer::_testVBoxUnit_test4removeChild(Unigine::String& outFunctionName)
+{
+	VBOXTESTBEGIN;
+	
+	return false;
+}
+
+bool TestPlayer::_testVBoxUnit_test5getChild(Unigine::String& outFunctionName)
+{
+	VBOXTESTBEGIN;
+	
+	return false;
+}
+
+bool TestPlayer::_testVBoxUnit_test6clear(Unigine::String& outFunctionName)
+{
+	VBOXTESTBEGIN;
+	
 	return false;
 }
 

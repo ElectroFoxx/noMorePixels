@@ -8,6 +8,6 @@ namespace noMoPi
 	{
 		Fill,
 		Proportional,
-		PixelPerfect
+		Ratio
 	};
 }

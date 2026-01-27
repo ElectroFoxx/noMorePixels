@@ -18,10 +18,10 @@ namespace noMoPi
 		virtual void addChild(const std::shared_ptr<WidgetBase>& widget);
 		const std::shared_ptr<WidgetBase>& getChild(int32_t index) const;
 		const int32_t getNumChildren() const { return static_cast<int32_t>(_childWidgets.size()); }
-		void clear();
+		virtual void clear();
 
 		WidgetContainerBase* setPadding(float top, float bottom, float left, float right);
-		WidgetContainerBase* setPaddingEqual(bool isPaddingEqual);
+		WidgetContainerBase* setPaddingEqual(bool isPaddingEqual, bool useSmallestPadding = true);
 		WidgetContainerBase* setSpacing(float spacing, bool ignorePadding = false);
 		WidgetContainerBase* setBackgroundEnabled(bool hasBackground);
 		WidgetContainerBase* setBackgroundColor(float r, float g, float b, float a = 1.f);
@@ -44,12 +44,14 @@ namespace noMoPi
 		void _calculatePadding();
 		virtual void _calculateSpacing();
 		virtual void _resizeChildren();
+		virtual void _setGui(const Unigine::Ptr<Unigine::Gui>& gui);
 
 		std::vector<std::shared_ptr<WidgetBase>> _childWidgets;
 		std::vector<Unigine::WidgetVBoxPtr> _spacers;
 		Unigine::Math::vec4 _padding;
 		Unigine::Math::ivec4 _paddingInPixels;
 		bool _isPaddingEqual = false;
+		bool _useSmallestPadding = false;
 		float _spacing = 0.f;
 		bool _ignorePadding = false;
 		int32_t _scaledSpacing = 0;

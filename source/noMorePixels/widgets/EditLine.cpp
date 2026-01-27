@@ -9,7 +9,7 @@ EditLine::EditLine(const ScaleSettings& scaleSettings) : WidgetBase(scaleSetting
 	Unigine::WidgetEditLinePtr _editLine = Unigine::WidgetEditLine::create("test");
 	_editLine->setLifetime(Unigine::Widget::LIFETIME_MANUAL);
 	_editLine->setStyleTextureBackground(Settings::get().getWhiteBackground());
-	_editLine->setBackgroundColor(Unigine::Math::vec4_green);
+	_editLine->setBackgroundColor(Unigine::Math::vec4_zero);
 	_editLine->setBorderColor(Unigine::Math::vec4_zero);
 
 	_editLine->getEventChanged().connect(ec, this, &EditLine::_onTextChanged);
@@ -26,6 +26,53 @@ void EditLine::resize(int32_t width, int32_t height)
 	_calculateMaxFontSize();
 
 	_rootWidget->setFontSize(_maxFontSize);
+}
+
+EditLine* noMoPi::EditLine::setText(const Unigine::String& text)
+{
+	Unigine::WidgetEditLinePtr editLine = Unigine::dynamic_ptr_cast<Unigine::WidgetEditLine>(_rootWidget);
+	
+	editLine->setText(text);
+	_previousText = text;
+	
+	return this;
+}
+
+EditLine* noMoPi::EditLine::setBackgroundEnabled(bool hasBackground)
+{
+	if (Unigine::WidgetEditLinePtr editLine = Unigine::dynamic_ptr_cast<Unigine::WidgetEditLine>(_rootWidget))
+		editLine->setBackground(hasBackground);
+	
+	return this;
+}
+
+EditLine* noMoPi::EditLine::setBackgroundColor(float r, float g, float b, float a)
+{
+	if (Unigine::WidgetEditLinePtr editLine = Unigine::dynamic_ptr_cast<Unigine::WidgetEditLine>(_rootWidget))
+		editLine->setBackgroundColor(Unigine::Math::vec4(r, g, b, a));
+
+	return this;
+}
+
+EditLine* noMoPi::EditLine::setBackgroundColor(const Unigine::Math::vec4& color)
+{
+	if (Unigine::WidgetEditLinePtr editLine = Unigine::dynamic_ptr_cast<Unigine::WidgetEditLine>(_rootWidget))
+		editLine->setBackgroundColor(color);
+
+	return this;
+}
+
+EditLine* noMoPi::EditLine::setBackgroundColor(int32_t r, int32_t g, int32_t b, int32_t a)
+{
+	return setBackgroundColor(static_cast<float>(r) / 255, static_cast<float>(g) / 255, static_cast<float>(b) / 255, static_cast<float>(a) / 255);
+}
+
+EditLine* noMoPi::EditLine::setBackgroundTexture(const Unigine::String& texture)
+{
+	if (Unigine::WidgetEditLinePtr editLine = Unigine::dynamic_ptr_cast<Unigine::WidgetEditLine>(_rootWidget))
+		editLine->setStyleTextureBackground(Settings::get().getTexturesPath(texture));
+
+	return this;
 }
 
 void noMoPi::EditLine::_calculateMaxFontSize()

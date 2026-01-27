@@ -25,6 +25,10 @@ void UI::updateLayout()
 	if (!_rootWidget || !_gui)
 		return;
 
+	_rootWidget->_setGui(_gui);
+
+	translate();
+
 	Unigine::Math::ivec2 guiSize = _gui->getSize();
 	_rootWidget->resize(guiSize.x, guiSize.y);
 }
@@ -45,6 +49,9 @@ void UI::translate()
 		return;
 
 	if (!_gui)
+		return;
+
+	if (_currentDictionary.size() == 0 || _currentLanguage.size() == 0)
 		return;
 
 	_gui->clearDictionaries();
@@ -74,8 +81,8 @@ void noMoPi::UI::setSize(const Unigine::Math::ivec2& size)
 	if (_gui)
 		_gui->setSize(size);
 
-	if (_rootWidget)
-		_rootWidget->resize(size.x, size.y);
+	//if (_rootWidget)
+		//_rootWidget->resize(size.x, size.y);
 }
 
 void noMoPi::UI::clear(bool deleteRoot = false)

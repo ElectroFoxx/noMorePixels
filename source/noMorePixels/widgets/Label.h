@@ -32,6 +32,7 @@ namespace noMoPi
 		~Label();
 	protected:
 		void _calculateMaxFontParams();
+		virtual void _setGui(const Unigine::GuiPtr& gui);
 
 		Unigine::WidgetLabelPtr _label;
 

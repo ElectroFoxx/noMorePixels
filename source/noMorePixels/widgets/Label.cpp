@@ -17,12 +17,13 @@ Label* Label::setText(const char* text, bool isTranslatable)
 {
 	if (isTranslatable)
 	{
-		Unigine::GuiPtr gui = _rootWidget->getGui();
 		_keyText = text;
-		_targetText = gui->translate(text);
+		//_targetText = _gui->translate(text);
 	}
 	else
 		_targetText = text;
+
+	_isTextTranslatable = isTranslatable;
 
 	_countTextLines(_targetText);
 
@@ -217,6 +218,12 @@ void noMoPi::Label::_calculateMaxFontParams()
 	_maxfontVSpacing = static_cast<int32_t>(_maxFontSize * _fontMaxVSpacing);
 }
 
+void noMoPi::Label::_setGui(const Unigine::GuiPtr& gui)
+{
+	WidgetBase::_setGui(gui);
+	_label->setGui(_gui);
+}
+
 noMoPi::Label::~Label()
 {
 	_label.deleteLater();
@@ -224,10 +231,12 @@ noMoPi::Label::~Label()
 
 void Label::translate()
 {
-	Unigine::GuiPtr gui = _rootWidget->getGui();
+	if (!_isTextTranslatable)
+		return;
 
-	setText(gui->translate(_keyText));
-
+	_targetText = _gui->translate(_keyText);
+	_countTextLines(_targetText);
+	_label->setText(_targetText);
 
 	_calculateMaxFontParams();
 

@@ -1145,6 +1145,7 @@
 	"cc464901a3183f2afae0326fcffcd8929191ccf0": "editor2/resources/template_shaders/compute.comp",
 	"cc4f654b4d49ec81165e02e9bb0e8a2449f9ca12": "core/materials/base/objects/clouds/copy/scene_copy.frag",
 	"cc5ad2e898951d66bae3a75972bd9d10debb060f": "core/subgraphs/refraction simple for thick objects.msubgraph",
+	"cc8218fb72fc4238b1c53d41076b8a5bdff4de71": "test.jpg",
 	"cd28a416820ee03ffcae33e0300fe6d4a4792963": "core/systems/widgets/widget_drag_area.h",
 	"cd518d3796c6bd6e996a25f695bace323b8f2b69": "core/textures/scattering_lut/preset_0/base.tif",
 	"cd5d9b1f1add234f2e0d871d27966c1ebd3bcf16": "core/materials/base/vr/utils/render_mixed_reality_create_cubemap.basemat",

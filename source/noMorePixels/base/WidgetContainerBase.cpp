@@ -7,13 +7,12 @@ using namespace noMoPi;
 
 void WidgetContainerBase::addChild(const std::shared_ptr<WidgetBase>& widget)
 {
-	Unigine::GuiPtr gui = _rootWidget->getGui();
-	widget->_setGui(gui);
+	widget->_setGui(_gui);
 
 	// Interactive vidgets support events like onClicked, onEnter, ect
 	if (Interactive* interactive = dynamic_cast<Interactive*>(widget.get()))
 	{
-		interactive->setGui(gui);
+		interactive->setGui(_gui);
 		interactive->attach(widget);
 	}
 
@@ -47,10 +46,10 @@ void WidgetContainerBase::clear()
 	_childWidgets.clear();
 	_spacers.clear();
 
-	while (_rootWidget->getNumChildren() > 0)
+	while (_containterWidget->getNumChildren() > 0)
 	{
-		Unigine::WidgetPtr widget = _rootWidget->getChild(0);
-		_rootWidget->removeChild(widget);
+		Unigine::WidgetPtr widget = _containterWidget->getChild(0);
+		_containterWidget->removeChild(widget);
 	}
 }
 
@@ -116,26 +115,29 @@ void WidgetContainerBase::resize(int32_t width, int32_t height)
 
 void WidgetContainerBase::_resizeChildren()
 {
-	float totalWidgetsWeight = 0.f;
-	int32_t fillWidgetsCount = 0;
-	int32_t otherWidgetsCount = 0;
+	float totalFillWeight = 0.f;
+	float totalProportionalWeight = 0.f;
+	float totalRatioWeight = 0.f;
 
+	// Calculate total weights
 	for (auto& child : _childWidgets)
 	{
-		if (child->getScaleSettings().scaleType == ScaleType::Fill)
-		{
-			totalWidgetsWeight += child->getScaleSettings().scaleFactor;
-			fillWidgetsCount++;
-		}
-		else
-			otherWidgetsCount++;
+		const ScaleSettings& scaleSettings = child->getScaleSettings();
+		
+		if (scaleSettings.scaleType == ScaleType::Fill)
+			totalFillWeight += scaleSettings.scaleFactor;
+		else if (scaleSettings.scaleType == ScaleType::Proportional)
+			totalProportionalWeight += scaleSettings.scaleFactor;
+		else if (scaleSettings.scaleType == ScaleType::Ratio)
+			totalRatioWeight += scaleSettings.scaleFactor;
 	}
 
 	int32_t parentWidth = getInnerWidth();
 	int32_t parentHeight = getInnerHeight();
 
-	bool isHorizontal = _rootWidget->getType() == Unigine::Widget::TYPE::WIDGET_HBOX;
+	const bool isHorizontal = _rootWidget->getType() == Unigine::Widget::TYPE::WIDGET_HBOX;
 
+	// Calculate available space after spacing
 	if (isHorizontal)
 	{
 		uint32_t spacing = static_cast<int32_t>(_spacing * parentWidth);
@@ -147,38 +149,87 @@ void WidgetContainerBase::_resizeChildren()
 		parentHeight -= spacing * (static_cast<int32_t>(_childWidgets.size()) - 1);
 	}
 
-	int32_t spaceLeft = isHorizontal ? parentWidth : parentHeight;
+	const int32_t freeSpace = isHorizontal ? parentWidth : parentHeight;
+	const int32_t oppositeSize = isHorizontal ? parentHeight : parentWidth;
+
+	int32_t freeSpaceForProportionalWidgets = static_cast<int32_t>(freeSpace * totalProportionalWeight);
+	int32_t freeSpaceForRatioWidgets = static_cast<int32_t>(oppositeSize * totalRatioWeight);
+	int32_t freeSpaceForFillWidgets = freeSpace - freeSpaceForProportionalWidgets - freeSpaceForRatioWidgets;
+
+	float fillWidgetsRemainder = 0.f, proportionalWidgetsRemainder = 0.f, ratioWidgetsRemainder = 0.f;
+	
+	// Resize all Fill and Proportional widgets
 	for (auto& child : _childWidgets)
 	{
 		const ScaleType& scaleType = child->getScaleSettings().scaleType;
+		const float scaleFactor = child->getScaleSettings().scaleFactor;
+
+		int32_t childSize = 0;
+
 		if (scaleType == ScaleType::Fill)
 		{
-			int32_t childSize = isHorizontal ?
-				fillWidgetsCount > 1 ? static_cast<int32_t>(parentWidth * (child->getScaleSettings().scaleFactor / totalWidgetsWeight)) : spaceLeft :
-				fillWidgetsCount > 1 ? static_cast<int32_t>(parentHeight * (child->getScaleSettings().scaleFactor / totalWidgetsWeight)) : spaceLeft;
+			const float exactSize = freeSpaceForFillWidgets * (scaleFactor / totalFillWeight);
+			const int32_t roundedSize = static_cast<int32_t>(exactSize);
 
-			if (isHorizontal)
-				child->resize(childSize, parentHeight);
-			else
-				child->resize(parentWidth, childSize);
+			fillWidgetsRemainder += exactSize - roundedSize;
 
-			spaceLeft -= childSize;
-			fillWidgetsCount--;
+			int32_t adjustment = 0;
+
+			if (fillWidgetsRemainder >= 0.99975f)
+			{
+				adjustment = 1;
+				fillWidgetsRemainder -= 0.99975f;
+			}
+
+			childSize = roundedSize + adjustment;
 		}
 		else if (scaleType == ScaleType::Proportional)
 		{
-			int32_t childSize = isHorizontal ?
-				static_cast<int32_t>(parentHeight * child->getScaleSettings().scaleFactor) :
-				static_cast<int32_t>(parentWidth * child->getScaleSettings().scaleFactor);
+			const float exactSize = freeSpace * scaleFactor;
+			const int32_t roundedSize = static_cast<int32_t>(exactSize);
 
-			if (isHorizontal)
-				child->resize(childSize, parentHeight);
-			else
-				child->resize(parentWidth, childSize);
+			proportionalWidgetsRemainder += exactSize - roundedSize;
 
-			spaceLeft -= childSize;
+			int32_t adjustment = 0;
+
+			if (proportionalWidgetsRemainder >= 0.99975f)
+			{
+				adjustment = 1;
+				proportionalWidgetsRemainder -= 1.f;
+			}
+
+			childSize = roundedSize + adjustment;
 		}
+		else if (scaleType == ScaleType::Ratio)
+		{
+			const float exactSize = freeSpaceForRatioWidgets * (scaleFactor / totalRatioWeight);
+			const int32_t roundedSize = static_cast<int32_t>(exactSize);
+
+			ratioWidgetsRemainder += exactSize - roundedSize;
+
+			int32_t adjustment = 0;
+
+			if (ratioWidgetsRemainder >= 0.99975f)
+			{
+				adjustment = 1;
+				ratioWidgetsRemainder -= 1.f;
+			}
+
+			childSize = roundedSize + adjustment;
+		}
+
+		if (isHorizontal)
+			child->resize(childSize, parentHeight);
+		else
+			child->resize(parentWidth, childSize);
 	}
+}
+
+void noMoPi::WidgetContainerBase::_setGui(const Unigine::Ptr<Unigine::Gui>& gui)
+{
+	WidgetBase::_setGui(gui);
+	for (auto& child : _childWidgets)
+		child->_setGui(gui);
 }
 
 int32_t WidgetContainerBase::getInnerHeight() const
@@ -201,9 +252,10 @@ WidgetContainerBase* WidgetContainerBase::setPadding(float top, float bottom, fl
 	return this;
 }
 
-WidgetContainerBase* WidgetContainerBase::setPaddingEqual(bool isPaddingEqual)
+WidgetContainerBase* WidgetContainerBase::setPaddingEqual(bool isPaddingEqual, bool useSmallestPadding)
 {
 	_isPaddingEqual = isPaddingEqual;
+	_useSmallestPadding = useSmallestPadding;
 	return this;
 }
 
@@ -228,8 +280,8 @@ void WidgetContainerBase::_calculatePadding()
 	{
 		if (_isPaddingEqual)
 		{
-			int32_t smallestPadding = _paddingInPixels.min();
-			box->setPadding(smallestPadding, smallestPadding, smallestPadding, smallestPadding);
+			const int32_t equalPadding = _useSmallestPadding ? _paddingInPixels.min() : _paddingInPixels.max();
+			box->setPadding(equalPadding, equalPadding, equalPadding, equalPadding);
 		}
 		else
 			box->setPadding(

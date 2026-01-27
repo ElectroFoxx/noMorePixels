@@ -24,7 +24,7 @@ private:
 	void init();
 	void update();
 
-	void _assert(bool condition, const char* message);
+	void _assert(bool condition, const Unigine::String& message);
 
 	bool _isAllImagesReady();
 
@@ -39,8 +39,12 @@ private:
 	////////////////
 
 	void _testVBoxUnit();
-	bool _testVBoxUnit_test1createDelete();
-	bool _testVBoxUnit_test2resize();
+	bool _testVBoxUnit_test1createDelete(Unigine::String& outFunctionName);
+	bool _testVBoxUnit_test2resize(Unigine::String& outFunctionName);
+	bool _testVBoxUnit_test3addChild(Unigine::String& outFunctionName);
+	bool _testVBoxUnit_test4removeChild(Unigine::String& outFunctionName);
+	bool _testVBoxUnit_test5getChild(Unigine::String& outFunctionName);
+	bool _testVBoxUnit_test6clear(Unigine::String& outFunctionName);
 
 	void _testVBoxVisual();
 

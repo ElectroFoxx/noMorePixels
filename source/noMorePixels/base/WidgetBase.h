@@ -40,7 +40,7 @@ namespace noMoPi
 		// Method to update the layout of the widget (apply new modifications, without resizing)
 		void updateLayout();
 	protected:
-		void _setGui(const Unigine::GuiPtr& gui);
+		virtual void _setGui(const Unigine::GuiPtr& gui);
 
 		~WidgetBase();
 

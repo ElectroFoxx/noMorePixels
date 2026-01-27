@@ -162,7 +162,7 @@ void noMoPi::Scroll::_sliderChanged(const Unigine::WidgetPtr& widget)
 
 	const int32_t sliderRange = _maxValue - _minValue;
 
-	int32_t position = _topHeight + static_cast<float>(_sliderSpace) * (_isReversed ? widgetSlider->getValue() : _maxValue - widgetSlider->getValue()) / sliderRange;
+	int32_t position = static_cast<int32_t>(_topHeight + static_cast<float>(_sliderSpace) * (_isReversed ? widgetSlider->getValue() : _maxValue - widgetSlider->getValue()) / sliderRange);
 
 	_sliderSprite->setPositionY(position);
 }
@@ -202,8 +202,8 @@ void noMoPi::Scroll::_applySliderProperties(const Unigine::WidgetSliderPtr& slid
 	slider->setButtonHeight(100);
 	slider->getEventChanged().connect(ec, this, &Scroll::_sliderChanged);
 	// make the slider transparent
-	//slider->setBackgroundColor(Unigine::Math::vec4(0, 0, 0, 0));
-	//slider->setButtonColor(Unigine::Math::vec4(0, 0, 0, 0));
+	slider->setBackgroundColor(Unigine::Math::vec4(0, 0, 0, 0));
+	slider->setButtonColor(Unigine::Math::vec4(0, 0, 0, 0));
 }
 
 void noMoPi::Scroll::_setSliderRange()

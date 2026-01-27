@@ -15,6 +15,12 @@ namespace noMoPi
 		static std::shared_ptr<EditLine> create(const ScaleSettings& scaleSettings) { return std::make_shared<EditLine>(scaleSettings); }
 
 		virtual void resize(int32_t width, int32_t height);
+		EditLine* setText(const Unigine::String& text);
+		EditLine* setBackgroundEnabled(bool hasBackground);
+		EditLine* setBackgroundColor(float r, float g, float b, float a = 1.f);
+		EditLine* setBackgroundColor(const Unigine::Math::vec4& color);
+		EditLine* setBackgroundColor(int32_t r, int32_t g, int32_t b, int32_t a = 255);
+		EditLine* setBackgroundTexture(const Unigine::String& texture);
 		EditLine* setDefaultFont(int32_t fontIndex);
 		EditLine* setMaxTextLength(int32_t maxLength);
 		EditLine* setValidationPattern(const char* pattern);

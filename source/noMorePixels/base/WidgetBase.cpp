@@ -40,3 +40,4 @@ WidgetBase::~WidgetBase()
 {
 	_rootWidget.deleteLater();
 }
+

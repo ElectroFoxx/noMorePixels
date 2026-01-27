@@ -16,6 +16,7 @@ namespace noMoPi
 		virtual void resize(int32_t width, int32_t height);
 		virtual void addChild(const std::shared_ptr<WidgetBase>& widget);
 		ScrollBox* setVisibleItemCount(int32_t itemCount);
+		ScrollBox* setScrollScale(float scale);
 	protected:
 		virtual void _resizeChildren();
 	private:
@@ -29,5 +30,7 @@ namespace noMoPi
 
 		int32_t _itemCount = 0;
 		int32_t _scaledItemHeight = 0;
+
+		float _scrollScale = 0.1f;
 	};
 }

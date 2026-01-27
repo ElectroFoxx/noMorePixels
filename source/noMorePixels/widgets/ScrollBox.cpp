@@ -33,10 +33,12 @@ void ScrollBox::resize(int32_t width, int32_t height)
 {
 	WidgetBase::resize(width, height);
 
-	_containterWidget->setWidth(width - 50);
+	int32_t scrollWidth = static_cast<int32_t>(width * _scrollScale);
+
+	_containterWidget->setWidth(width - scrollWidth);
 	_containterWidget->setHeight(height);
 
-	_verticalScroll->resize(50, height);
+	_verticalScroll->resize(scrollWidth, height);
 
 	_resizeChildren();
 }
@@ -52,6 +54,13 @@ ScrollBox* ScrollBox::setVisibleItemCount(int32_t itemCount)
 {
 	_itemCount = itemCount;
 
+	return this;
+}
+
+ScrollBox* noMoPi::ScrollBox::setScrollScale(float scale)
+{
+	_scrollScale = scale;
+	
 	return this;
 }
 
